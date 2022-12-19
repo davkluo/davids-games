@@ -37,6 +37,7 @@ app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
+# db.session.rollback()
 db.create_all()
 
 
@@ -92,6 +93,7 @@ def signup():
                 display_name = display_name,
                 email = email
             )
+
             db.session.commit()
 
             login_user(user)
@@ -99,7 +101,11 @@ def signup():
             return redirect(url_for('homepage'))
 
         except IntegrityError:
-            is_unique_username = User.query.get(username) is None
+            db.session.rollback()
+
+            is_unique_username = (User.query
+                .filter(User.username == username)
+                .one_or_none()) is None
             is_unique_display_name = (User.query
                 .filter(User.display_name == display_name)
                 .one_or_none()) is None
