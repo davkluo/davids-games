@@ -1,81 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset='UTF-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
   <title>David's Games</title>
 
+  <!-- Bootstrap -->
   <link rel="stylesheet"
-        href="https://unpkg.com/bootstrap@5/dist/css/bootstrap.css">
-  <script src="https://unpkg.com/jquery"></script>
+    href="https://unpkg.com/bootstrap@5/dist/css/bootstrap.css">
   <script src="https://unpkg.com/bootstrap"></script>
 
+  <!-- JQuery -->
+  <script src="https://unpkg.com/jquery"></script>
+
+  <!-- Icons -->
   <link rel="stylesheet"
-        href="https://www.unpkg.com/bootstrap-icons/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/static/stylesheets/style.css">
-  <link rel="shortcut icon" href="/static/favicon.ico">
+    href="https://www.unpkg.com/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="shortcut icon"
+    href="/static/favicon.ico">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet"
+    href="/static/stylesheets/style.css">
+
+  <!-- Fonts -->
+  <link rel="preconnect"
+    href="https://fonts.googleapis.com">
+  <link rel="preconnect"
+    href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;700&display=swap">
+
+  {% block page_stylesheets %}{% endblock %}
+  {% block page_scripts %}{% endblock %}
 </head>
 
-<body class="{% block body_class %}{% endblock %}">
+<body>
 
-<nav class="navbar navbar-expand">
-  <div class="container-fluid">
-
-    <div class="navbar-header">
-      <a href="/" class="navbar-brand">
-        <span>David's Games</span>
+  <nav class="navbar navbar-expand">
+    <div class="container-fluid">
+      <a href='/' class='navbar-brand'>
+        DAVID'S GAMES
       </a>
+
+
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a href='/games'>Games</a>
+        </li>
+        <li>
+          <a href='/achievements'>Achievements</a>
+        </li>
+
+        {% block searchbox %}
+          <li>
+            <form class="navbar-form navbar-end" action="/users">
+              <input
+                  name="q"
+                  class="form-control"
+                  placeholder="Search Users"
+                  aria-label="Search"
+                  id="search">
+              <button class="btn btn-default">
+                <span class="bi bi-search"></span>
+              </button>
+            </form>
+          </li>
+        {% endblock %}
+
+        {% if not current_user.is_authenticated %}
+          <li><a href="/signup">Sign up</a></li>
+          <li><a href="/login">Log in</a></li>
+        {% else %}
+          <li>
+            <a href="/users/1">
+              <img src="" alt="">
+            </a>
+          </li>
+          <li><a href="/messages/new">New Message</a></li>
+          <li>
+            <form method="POST" action="/logout">
+              {{ g.csrf_form.hidden_tag() }}
+              <button class="btn btn-link">Log out</button>
+            </form>
+          <li>
+        {% endif %}
+
+      </ul>
     </div>
+  </nav>
 
-    <ul class="nav navbar-nav navbar-right">
+  <div class="container">
 
-      {% block searchbox %}
-        <li>
-          <form class="navbar-form navbar-end" action="/users">
-            <input
-                name="q"
-                class="form-control"
-                placeholder="Search Warbler"
-                aria-label="Search"
-                id="search">
-            <button class="btn btn-default">
-              <span class="bi bi-search"></span>
-            </button>
-          </form>
-        </li>
-      {% endblock %}
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+      <div class="alert alert-dismissible alert-{{ category }}">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
 
-      {% if not current_user.is_authenticated %}
-        <li><a href="/signup">Sign up</a></li>
-        <li><a href="/login">Log in</a></li>
-      {% else %}
-        <li>
-          <a href="/users/1">
-            <img src="" alt="">
-          </a>
-        </li>
-        <li><a href="/messages/new">New Message</a></li>
-        <li>
-          <form method="POST" action="/logout">
-            {{ g.csrf_form.hidden_tag() }}
-            <button class="btn btn-link">Log out</button>
-          </form>
-        <li>
-      {% endif %}
+    {% block content %}
+    {% endblock %}
 
-    </ul>
   </div>
-</nav>
 
-<div class="container">
-
-  {% for category, message in get_flashed_messages(with_categories=True) %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-  {% endfor %}
-
-  {% block content %}
-  {% endblock %}
-
-</div>
 </body>
 </html>

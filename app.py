@@ -42,7 +42,8 @@ db.create_all()
 
 
 ###### Flask-login redirect target check ######
-# Credit to: https://web.archive.org/web/20120517003641/http://flask.pocoo.org/snippets/62/
+# Credit to:
+# https://web.archive.org/web/20120517003641/http://flask.pocoo.org/snippets/62/
 
 def is_safe_url(target):
     """ Check if a URL is safe for redirecting to """
@@ -58,9 +59,13 @@ def is_safe_url(target):
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'danger'
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
 
 
 ###### User signup/login/logout ######
@@ -177,6 +182,15 @@ def logout():
 
 ###### Minesweeper game routes ######
 
+@app.get('/games/minesweeper')
+@login_required
+def show_minesweeper_game():
+    """ Show minesweeper game to user """
+
+    return render_template('minesweeper.html')
+
+
+
 
 
 ###### PLACEHOLDER ######
@@ -185,4 +199,4 @@ def logout():
 def homepage():
     """ Show the home page """
 
-    return 'This is the home page.'
+    return render_template('base.html')

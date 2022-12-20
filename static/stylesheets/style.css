@@ -1,0 +1,17 @@
+/* * {
+    font-family: inherit;
+} */
+
+/* body {
+    font-family: 'Alexandria', sans-serif;
+} */
+
+nav {
+    background-color: rgb(8, 32, 18);
+}
+
+.navbar-brand {
+    font-family: 'Alexandria', sans-serif;
+    font-weight: bold;
+    color: white;
+}
