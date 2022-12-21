@@ -3,6 +3,8 @@
 const GAME_TIMER_UPDATE_INTERVAL_MS = 50;
 const MAX_GAME_TIME_S = 59 * 60 + 59;
 
+const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5001'
+
 /**
  * Game class for Minesweeper
  *
@@ -15,6 +17,9 @@ const MAX_GAME_TIME_S = 59 * 60 + 59;
  * clickAction: string configuration for click action
  * numRevealed: int count of revealed cells
  * numFlagged: int count of flagged cells
+ * startTime:
+ * scoreTime:
+ * scoreTimerId:
  *
  * METHODS
  * getValidNeighbours
@@ -22,11 +27,15 @@ const MAX_GAME_TIME_S = 59 * 60 + 59;
  * calcCellValues
  * generateBoardData
  * checkForWin
- * endGame
+ * endGameWin
+ * endGameLoss
  * revealCells
  * toggleFlag
  * revealNeighbourCells
  * handleFirstClick
+ * startTimer
+ * updateTimer
+ * stopTimer
  *
  */
 class Game {
@@ -138,15 +147,28 @@ class Game {
    */
   checkForWin() {
     if (this.numRevealed === (this.rows * this.cols - this.mines)) {
-      this.endGame('You win!');
+      this.endGameWin();
     }
   }
 
-  endGame(msg) {
-    clearInterval(this.scoreTimerId);
-    this.scoreTimerId = null;
-    alert(msg);
+  async endGameWin() {
+    this.stopTimer();
+    const scoreData = {
+      time: this.scoreTime,
+      level: Object.keys(DIFFICULTY_LEVELS)[levelIndex]
+    }
+    console.log(scoreData);
+    const response = await axios.post(
+      `${DAVIDS_GAMES_BASE_API_URL}/api/minesweeper/scores`,
+      scoreData
+    );
+    console.log('successfully posted score!');
   }
+
+  async endGameLoss() {
+    this.stopTimer();
+  }
+  // TODO: Deactivate board on game-over
 
   /**
    * revealCells: Given a variable number of Cells, reveal them if they are not
@@ -165,7 +187,7 @@ class Game {
       cell.status.revealed = true;
 
       if (cell.status.mine) {
-        this.endGame('You lose!');
+        this.endGameLoss();
         return;
       }
 
@@ -274,7 +296,7 @@ class Game {
     }
   }
 
-  pauseTimer() {
+  stopTimer() {
     clearInterval(this.scoreTimerId);
     this.scoreTimerId = null;
   }

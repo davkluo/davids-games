@@ -2,16 +2,225 @@
     font-family: inherit;
 } */
 
-/* body {
+body {
     font-family: 'Alexandria', sans-serif;
-} */
+}
+
+:root {
+    --primary-light-color: rgb(205, 255, 210);
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    background-color: rgb(5, 1, 10);
+    z-index: -1;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
 
 nav {
-    background-color: rgb(8, 32, 18);
+    background-color: rgb(5, 1, 10);
+    box-shadow: 0 0 .3rem 0.1rem rgb(205, 255, 210);
 }
 
 .navbar-brand {
     font-family: 'Alexandria', sans-serif;
     font-weight: bold;
     color: white;
+}
+
+#navbar-avatar, #navbar-search-icon {
+    border-radius: 100%;
+    height: 2.5rem;
+    width: 2.5rem;
+    z-index: 1;
+    position: relative;
+}
+
+#navbar-avatar {
+transition: box-shadow .25s;
+}
+
+#navbar-avatar:hover {
+    box-shadow: 0 0 .5rem 0.1rem rgb(205, 255, 210);
+}
+
+#navbar-search-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.75rem;
+    transition: color .25s;
+}
+
+#navbar-search-icon:hover {
+    color: rgb(205, 255, 210);
+}
+
+.dropdown-menu {
+    background-color: rgb(23, 23, 35);
+    border-radius: .5rem;
+    border: .1rem solid rgba(205, 255, 210, 0.3)
+}
+
+.dropdown-menu #search {
+    width: 15rem;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    color: white;
+    border-bottom: .05rem solid rgba(205, 255, 210, 0.3);
+}
+
+.dropdown-menu #search:focus {
+    border-color: rgb(255, 205, 250);
+    box-shadow: none;
+}
+
+.dropdown-menu #search+label {
+    color:rgb(255, 255, 255, .75);
+    font-size: .9rem;
+}
+
+#search-form-btn {
+    color: white;
+    font-weight: bold;
+}
+
+#search-form-btn:hover {
+    color: rgb(255, 205, 250);
+}
+
+#navbar-user-menu hr {
+    color: rgba(205, 255, 210, 0.3);
+}
+
+#navbar-user-menu a,
+#navbar-user-menu button {
+    color: rgb(255, 255, 255, .75);
+}
+
+#navbar-user-menu button {
+    font-weight: bold;
+}
+
+#navbar-user-menu a:hover,
+#navbar-user-menu button:hover {
+    color:rgb(255, 205, 250);
+    background-color: transparent;
+}
+
+.navbar-guest-link {
+    font-family: 'Alexandria', sans-serif;
+    font-weight: bold;
+    font-size: .8rem;
+    color: white;
+    text-decoration: none;
+    transition: color .25s;
+}
+
+.navbar-guest-link:hover {
+    color: rgb(205, 255, 210);
+    text-decoration: underline;
+}
+
+.navbar-brand:hover {
+    color: white;
+}
+
+.navbar-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.navbar-logo i {
+    display: flex;
+    height: 2.5rem;
+    font-size: 3rem;
+    color: var(--primary-light-color);
+    transition: color .25s;
+}
+
+.navbar-brand:hover i {
+    animation: logo-shake 0.4s;
+    animation-iteration-count: infinite;
+    color: rgb(255, 205, 250);
+}
+
+.navbar-logo span {
+    font-size: .7rem;
+    z-index: 1;
+}
+
+@keyframes logo-shake {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(-2deg); }
+    40% { transform: rotate(3deg); }
+    60% { transform: rotate(-3deg); }
+    80% { transform: rotate(2deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.join-message {
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+#user-form {
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#user-form input {
+    background-color: transparent;
+    border: 0;
+    width: 20rem;
+    border-radius: 0;
+    color: white;
+    border-bottom: .05rem solid rgba(205, 255, 210, 0.3);
+}
+
+#user-form input:focus {
+    border-color: rgb(205, 255, 210);
+    box-shadow: none;
+}
+
+#user-form label {
+    color: rgb(255, 255, 255, .75);
+    font-size: .9rem;
+}
+
+#user-form button {
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    height: 2.5rem;
+    width: 7rem;
+    border-radius: 1.25rem;
+    border: .1rem solid rgba(205, 255, 210, 0.3);
+    transition: background-color .25s, color .25s;
+}
+
+#user-form button:hover {
+    color: rgb(205, 255, 210);
+    border-color: rgb(205, 255, 210);
 }

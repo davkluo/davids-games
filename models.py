@@ -9,7 +9,7 @@ from flask_login import UserMixin
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-DEFAULT_USER_IMAGE_URL = '/static/images/default-pig.png'
+DEFAULT_USER_IMAGE_URL = '/static/images/default-pic.png'
 DEFAULT_USER_ROLE = 'user'
 
 
@@ -30,7 +30,8 @@ class User(db.Model, UserMixin):
 
     id = db.Column(
         db.Integer,
-        primary_key = True
+        primary_key = True,
+        autoincrement = True
     )
     username = db.Column(
         db.String(20),
@@ -71,9 +72,8 @@ class User(db.Model, UserMixin):
 
     ###### INSTANCE METHODS ######
 
-    # TODO:
-    # def __repr__(self) -> str:
-    #     return super().__repr__()
+    def __repr__(self):
+        return f'<User {self.id} {self.username}>'
 
 
     def is_admin(self):
@@ -124,12 +124,15 @@ class User(db.Model, UserMixin):
 
     role = db.relationship('Role', backref = 'users')
 
-    # TODO:
-    # preferences
-    # minesweeper scores
-    # achievements
-    # minesweeper_stats
-    # history
+    minesweeper_scores = db.relationship('MinesweeperScore', backref = 'user')
+
+    minesweeper_stats = db.relationship('MinesweeperStat', backref = 'user')
+
+    minesweeper_achievements = db.relationship(
+        'MinesweeperAchievement',
+        secondary = 'users_minesweeper_achievements',
+        backref = 'users'
+    )
 
 
 class Role(db.Model):
@@ -137,12 +140,187 @@ class Role(db.Model):
 
     __tablename__ = 'roles'
 
+    ###### TABLE COLUMNS ######
+
     id = db.Column(
         db.Integer,
-        primary_key = True
+        primary_key = True,
+        autoincrement = True
     )
     name = db.Column(
         db.String(20),
         nullable = False,
         unique = True
     )
+
+
+class MinesweeperScore(db.Model):
+    """ Minesweeper scores table model """
+
+    __tablename__ = 'minesweeper_scores'
+
+    ###### TABLE COLUMNS ######
+
+    id = db.Column(
+        db.Integer,
+        primary_key = True,
+        autoincrement = True
+    )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable = False
+    )
+    time = db.Column(
+        db.Integer,
+        nullable = False
+    )
+    level = db.Column(
+        db.String(30),
+        nullable = False
+    )
+    submitted_at = db.Column(
+        db.DateTime,
+        nullable = False,
+        default = db.func.now()
+    )
+
+    ###### INSTANCE METHODS ######
+
+    def serialize(self):
+        """Serialize to dictionary"""
+
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "time": self.time,
+            "level": self.level,
+            "submitted_ad": self.submitted_at,
+            "user_display_name": self.user.display_name
+        }
+
+    @classmethod
+    def get_scores_for_level(cls, level, qty):
+        """ Query the top <qty> scores for a given <level>
+        Return a list of score objects.
+        """
+
+        return (cls.query
+            .filter(cls.level == level)
+            .order_by(cls.time)
+            .limit(qty)
+            .all())
+
+
+class MinesweeperStat(db.Model):
+    """ Minesweeper stats table model """
+
+    __tablename__ = 'minesweeper_stats'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        primary_key = True,
+    )
+    games_played = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    games_won = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    games_lost = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    beginner_games_won = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    intermediate_games_won = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    expert_games_won = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    time_played = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    cells_revealed = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    win_streak = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+    lose_streak = db.Column(
+        db.Integer,
+        nullable = False,
+        default = 0
+    )
+
+
+class MinesweeperAchievement(db.Model):
+    """ Minesweeper achievements table model """
+
+    __tablename__ = 'minesweeper_achievements'
+
+    id = db.Column(
+        db.Integer,
+        primary_key = True,
+        autoincrement = True
+    )
+    title = db.Column(
+        db.String(50),
+        nullable = False
+    )
+    description = db.Column(
+        db.Text,
+        nullable = False
+    )
+    html_string = db.Column(
+        db.Text,
+        nullable = False
+    )
+
+
+class UserMinesweeperAchievement(db.Model):
+    """ User - minesweeper achievements association table model """
+
+    __tablename__ = 'users_minesweeper_achievements'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        primary_key = True
+    )
+    achievement_id = db.Column(
+        db.Integer,
+        db.ForeignKey('minesweeper_achievements.id', ondelete='CASCADE'),
+        primary_key = True
+    )
+    achieved_at = db.Column(
+        db.DateTime,
+        nullable = False,
+        default = db.func.now()
+    )
+
+
+    # TODO:
+    # preferences -> make this a to-do for now...
+    # history -> just make last played column in stats?
+    # games table -> maybe when we have more games

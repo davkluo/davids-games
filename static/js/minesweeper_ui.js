@@ -1,7 +1,7 @@
 'use strict';
 
 const DEFAULT_DIFFICULTY = 'beginner';
-const DEFAULT_DIFFICULTY_CONFIGS = {
+const DIFFICULTY_LEVELS = {
   beginner: {
     rows: 9,
     cols: 9,
@@ -27,15 +27,17 @@ const NEIGHBOUR_CELL_OFFSETS = [
 const BOMB_ICON_HTML = '<i class="fa-solid fa-bomb"></i>';
 const FLAG_ICON_HTML = '<i class="fa-solid fa-flag"></i>';
 
-const $rowsInput = $('#rows-input');
-const $colsInput = $('#cols-input');
-const $minesInput = $('#mines-input');
+const $startScreen = $('#start-screen');
+const $gameLevelSetting = $('#game-level');
+const $decLevelBtn = $('#dec-level-btn');
+const $incLevelBtn = $('#inc-level-btn');
 const $playBtn = $('#play-btn');
 const $clickActionSwitch = $('#click-action-switch');
 const $clickActionSwitchLabel = $('#click-action-switch-label');
 const $gameBoard = $('#game-board');
 const $timerDisplay = $('#game-timer');
 
+let levelIndex = 0;
 let game;
 
 function generateBoardHtml(rows, cols) {
@@ -48,12 +50,30 @@ function generateBoardHtml(rows, cols) {
   }
 }
 
-/** Grab input values for board size and number of mines */
+function updateLevelButtons() {
+  $decLevelBtn.removeClass('visibility-hidden');
+  $incLevelBtn.removeClass('visibility-hidden');
+
+  if (levelIndex === 0) {
+    $decLevelBtn.addClass('visibility-hidden');
+  } else if (levelIndex === Object.keys(DIFFICULTY_LEVELS).length - 1) {
+    $incLevelBtn.addClass('visibility-hidden');
+  }
+}
+
+function loadDefaultDifficulty() {
+  $gameLevelSetting.html(DEFAULT_DIFFICULTY);
+  updateLevelButtons();
+}
+
+/** Grab game level setting */
 function getGameConfigs() {
+  const gameLevel = $gameLevelSetting.html();
+
   return {
-    rows: +$rowsInput.val(),
-    cols: +$colsInput.val(),
-    mines: +$minesInput.val()
+    rows: DIFFICULTY_LEVELS[gameLevel].rows,
+    cols: DIFFICULTY_LEVELS[gameLevel].cols,
+    mines: DIFFICULTY_LEVELS[gameLevel].mines
   };
 }
 
@@ -66,10 +86,19 @@ function createBoard() {
 
 function startGame(evt) {
   console.debug('startGame', evt);
+
+  if (game) {
+    game.stopTimer();
+    game = null;
+    updateTimerDisplay(0);
+  }
+
   createBoard();
   updateClickAction();
   $clickActionSwitch.on('change', updateClickAction);
   $(document).on('keydown', toggleClickAction);
+
+  $startScreen.hide();
 }
 
 function revealCellHtml(cell) {
@@ -160,7 +189,24 @@ function toggleClickAction(evt) {
   }
 }
 
+function decreaseLevel(evt) {
+  console.debug('decreaseLevel', evt);
+  levelIndex = Math.max(0, levelIndex - 1);
+  $gameLevelSetting.html(Object.keys(DIFFICULTY_LEVELS)[levelIndex]);
+  updateLevelButtons();
+}
+
+function increaseLevel(evt) {
+  console.debug('increaseLevel', evt);
+  levelIndex = Math.min(levelIndex + 1, Object.keys(DIFFICULTY_LEVELS).length - 1);
+  $gameLevelSetting.html(Object.keys(DIFFICULTY_LEVELS)[levelIndex]);
+  updateLevelButtons();
+}
+
 //call function to set default values for rows/cols/mines
+loadDefaultDifficulty();
+$decLevelBtn.on('click', decreaseLevel);
+$incLevelBtn.on('click', increaseLevel);
 $playBtn.on('click', startGame);
 $gameBoard.on('click', '.game-cell', handleClick);
 $gameBoard.on('contextmenu', '.game-cell', handleRightClick);

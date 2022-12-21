@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 
 from flask import (
-    Flask, render_template, flash, request, url_for, redirect, abort, g
+    Flask, render_template, flash, request, url_for, redirect, abort, g,
+    jsonify
 )
 
 from flask_login import (
@@ -17,11 +18,16 @@ from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import (
-    db, connect_db, User, Role
+    db, connect_db, User, Role, MinesweeperScore, MinesweeperStat,
+    MinesweeperAchievement, UserMinesweeperAchievement
 )
 
 from forms import (
     LoginForm, UserAddForm, CSRFProtection
+)
+
+from minesweeper import (
+    MINESWEEPER_LEVELS
 )
 
 load_dotenv()
@@ -38,7 +44,7 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 # db.session.rollback()
-db.create_all()
+# db.create_all()
 
 
 ###### Flask-login redirect target check ######
@@ -118,13 +124,15 @@ def signup():
                 .filter(User.email == email)
                 .one_or_none()) is None
 
-            # TODO: Decide if we want these or flash messages
             if not is_unique_username:
-                form.username.errors = ['Username already taken.']
+                # form.username.errors = ['Username already taken.']
+                flash('Username already taken.', 'danger')
             if not is_unique_display_name:
-                form.display_name.errors = ['Display name already taken.']
+                # form.display_name.errors = ['Display name already taken.']
+                flash('Display name already taken.', 'danger')
             if not is_unique_email:
-                form.email.errors = ['Email already taken.']
+                # form.email.errors = ['E-mail already taken.']
+                flash('E-mail already taken.', 'danger')
 
     return render_template('users/signup.html', form=form)
 
@@ -177,7 +185,8 @@ def logout():
 
 # List of users with query string
 # Show user
-
+#edit user
+#delete user
 
 
 ###### Minesweeper game routes ######
@@ -190,13 +199,69 @@ def show_minesweeper_game():
     return render_template('minesweeper.html')
 
 
+###### Minesweeper game API ######
+
+@app.get('/api/minesweeper/scores')
+@login_required
+def get_minesweeper_scores():
+    """ Get minesweeper scores from database. Top 20 for each difficulty. """
+
+    scores = {}
+
+    for level in MINESWEEPER_LEVELS:
+        scores_for_level = MinesweeperScore.get_scores_for_level(level, 20)
+        scores[level] = [score.serialize() for score in scores_for_level]
+
+    return jsonify(scores=scores)
 
 
+@app.post('/api/minesweeper/scores')
+@login_required
+def submit_minesweeper_score():
+    """ Submit minesweeper score to database.
+    Expects JSON format data with fields for time and level.
+    """
 
-###### PLACEHOLDER ######
+    new_score = MinesweeperScore(
+        user_id = current_user.id,
+        time = request.json['time'],
+        level = request.json['level']
+    )
+    db.session.add(new_score)
+    db.session.commit()
+
+    serialized = new_score.serialize()
+
+    return (jsonify(score=serialized), 201)
+
+
+# @app.post('/api/minesweeper/stats')
+# Will return data including any new achievements
+
+
+###### GENERAL ROUTES ######
 
 @app.get('/')
 def homepage():
     """ Show the home page """
 
+    return redirect(url_for('show_games_page'))
+
+
+@app.get('/games')
+def show_games_page():
+    """ Show the games page that lists all available games """
+
     return render_template('base.html')
+
+# TODO:
+# list users page
+# edit user page
+# user profile page
+# user delete route
+# 404 page
+# get minesweeper stats for user (to display on profile)
+# patch minesweeper stats
+# calculate if user got achievements
+# style game
+# style page
