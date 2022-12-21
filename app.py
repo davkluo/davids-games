@@ -27,7 +27,7 @@ from forms import (
 )
 
 from minesweeper import (
-    MINESWEEPER_LEVELS
+    MINESWEEPER_LEVELS, calc_minesweeper_achievements
 )
 
 load_dotenv()
@@ -233,6 +233,38 @@ def submit_minesweeper_score():
     serialized = new_score.serialize()
 
     return (jsonify(score=serialized), 201)
+
+
+@app.post('/api/minesweeper/stats')
+@login_required
+def submit_minesweeper_stats():
+    """ Submit minesweeper stats to database.
+    Calculates achievements and sends back in JSON response.
+    """
+    # data = request.json
+    return jsonify(stats='', new_achievements=[{
+        'title':'test achievement',
+        'description':'test description'}])
+    # curr_stat = MinesweeperStat.query.filter_by(user_id = current_user.id)
+
+    # curr_stat.games_played += data['games_played']
+    # curr_stat.games_won += data['games_won']
+    # curr_stat.beginner_games_won += data['beginner_games_won']
+    # curr_stat.intermediate_games_won += data['intermediate_games_won']
+    # curr_stat.expert_games_won += data['expert_games_won']
+    # curr_stat.time_played += data['time_played']
+    # curr_stat.cells_revealed += data['cells_revealed']
+    # curr_stat.win_streak = (
+    #     (data['win_streak'] + 1)
+    #     if data['games_won'] else
+    #     0
+    # )
+    # curr_stat.last_played_at = data['last_played_at']
+
+    # db.session.add(curr_stat)
+    # db.session.commit()
+    # calc_minesweeper_achievements(curr_stat, data)
+
 
 
 # @app.post('/api/minesweeper/stats')

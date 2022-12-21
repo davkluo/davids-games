@@ -28,8 +28,7 @@ const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5001'
  * calcCellValues
  * generateBoardData
  * checkForWin
- * endGameWin
- * endGameLoss
+ * endGame
  * revealCells
  * toggleFlag
  * revealNeighbourCells
@@ -54,16 +53,12 @@ class Game {
     this.scoreTimerId = null;
     this.gameOver = false;
     this.gameStarted = false;
+    this.level = Object.keys(DIFFICULTY_LEVELS)[levelIndex]
 
     this.generateBoardData();
     this.updateTimer = this.updateTimer.bind(this);
   }
 
-  // Timer method
-  // Save high score method
-  // Load high score method
-  // Update number of revealed cells method
-  // Update number of flagged cells method
 
   /**
    * getValidNeighbours: Given a Cell, determine all valid neighbour Cells
@@ -82,6 +77,7 @@ class Game {
       .filter(([nRow, nCol]) => nRow >= 0 && nRow < this.rows && nCol >= 0 && nCol < this.cols)
       .map(([nRow, nCol]) => this.cells[Cell.getCellId(nRow, nCol)]);
   }
+
 
   /**
    * placeMines: Place mines randomly on the board provided the number of mines
@@ -111,6 +107,7 @@ class Game {
     return mineCells;
   }
 
+
   /**
    * calcCellValues: Given a variable number of Cells, calculate for each its
    * value indicating how many mines it is surrounded by.
@@ -123,6 +120,7 @@ class Game {
       cell.val = mineNeighbours.length;
     }
   }
+
 
   /**
    * generateBoardData: Place mines, determine cell values, and populate
@@ -144,36 +142,67 @@ class Game {
     this.calcCellValues(...nonMineCells);
   }
 
+
   /**
    * checkForWin: Check for a win condition by comparing the number of revealed
    * safe cells to the total number of safe cells
    */
   checkForWin() {
     if (this.numRevealed === (this.rows * this.cols - this.mines)) {
-      this.endGameWin();
+      this.endGame(true);
     }
   }
 
-  async endGameWin() {
+
+  endGame(win) {
     this.stopTimer();
     this.gameOver = true;
+
+    if (win) {
+      this.sendScore();
+      showSuspendScreen('YOU WIN!');
+    } else {
+      showSuspendScreen('GAME OVER');
+    }
+
+    this.sendGameStats(win);
+  }
+
+
+  async sendScore() {
     const scoreData = {
       time: this.scoreTime,
-      level: Object.keys(DIFFICULTY_LEVELS)[levelIndex]
+      level: this.level
     }
-    console.log(scoreData);
+
     const response = await axios.post(
       `${DAVIDS_GAMES_BASE_API_URL}/api/minesweeper/scores`,
       scoreData
     );
-    console.log('successfully posted score!');
   }
 
-  async endGameLoss() {
-    this.stopTimer();
-    this.gameOver = true;
+
+  async sendGameStats(win) {
+    const gameData = {
+      games_played: 1,
+      games_won: win ? 1 : 0,
+      beginner_games_won: (this.level === 'beginner' && win) ? 1 : 0,
+      intermediate_games_won: (this.level === 'intermediate' && win) ? 1 : 0,
+      expert_games_won: (this.level === 'expert' && win) ? 1 : 0,
+      time_played: this.scoreTime,
+      cells_revealed: this.numRevealed,
+      last_played_at: (new Date()).toUTCString()
+    }
+
+    const response = await axios.post(
+      `${DAVIDS_GAMES_BASE_API_URL}/api/minesweeper/stats`,
+      gameData
+    );
+
+    for (let achievement of response.data.new_achievements) {
+      console.log(achievement.title, achievement.description);
+    }
   }
-  // TODO: Deactivate board on game-over
 
   /**
    * revealCells: Given a variable number of Cells, reveal them if they are not
@@ -192,7 +221,7 @@ class Game {
       cell.status.revealed = true;
 
       if (cell.status.mine) {
-        this.endGameLoss();
+        this.endGame(false);
         return;
       }
 

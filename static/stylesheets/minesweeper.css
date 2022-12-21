@@ -61,6 +61,26 @@
     color: rgb(200, 200, 200);
 }
 
+#leaderboard-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    cursor: pointer;
+    color: white;
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.25rem;
+    transition: transform .25s;
+    height: 2rem;
+    width: 2rem;
+}
+
+#leaderboard-btn:hover {
+    transform: translateY(-.2rem);
+}
+
 #game-timer, #mine-count {
     color: white;
     text-align: center;
@@ -75,6 +95,115 @@
 
 #mine-count-display {
     width: 1.5rem;
+}
+
+#suspend-screen {
+    border-radius: 1rem;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(50, 50, 50, .5);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    z-index: 1;
+    cursor: not-allowed;
+}
+
+#leaderboard {
+    position: absolute;
+    height: 80%;
+    width: 80%;
+    top: 10%;
+    left: 10%;
+    background-color: rgb(23, 23, 35);
+    box-shadow: 0 0 1rem .05rem rgb(150, 150, 150);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    overflow-y: auto;
+}
+
+#leaderboard-header {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.scores {
+    align-self: flex-start;
+    width: 90%;
+    counter-reset: item;
+    font-size: 0.8rem;
+}
+
+.scores li {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.scores li:before {
+    content: counter(item) ". ";
+    counter-increment: item;
+    width: 2.5rem;
+    display: inline-block;
+}
+
+.scores li:nth-child(3) i.fa-crown {
+    color: rgb(205, 127, 50);
+}
+
+.scores li:nth-child(2) i.fa-crown {
+    color: rgb(192, 192, 192);
+}
+
+.scores li:nth-child(1) i.fa-crown {
+    color: rgb(255, 215, 0);
+}
+
+.scores .leaderboard-left-div {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+.scores li a {
+    color: white;
+    text-decoration: none;
+}
+
+.scores li a:hover {
+    color:rgb(255, 205, 250);
+}
+
+.scores .leaderboard-right-div {
+    display: flex;
+    margin-left: auto;
+    justify-content: space-between;
+    width: 10rem;
+}
+
+.scores .leaderboard-time-div {
+    width: 4rem;
+}
+
+.scores .leaderboard-date-div {
+    width: 6rem;
+    color:rgb(150, 150, 150);
+}
+
+.leaderboard-subheader {
+    font-weight: bold;
+    align-self: flex-start;
+    font-size: 1rem;
+    text-decoration: underline;
 }
 
 #game-info {
@@ -107,6 +236,7 @@
 }
 
 #game-board {
+    position: relative;
     display: inline-grid;
     justify-content: center;
     align-content: center;
@@ -142,7 +272,7 @@
 
 .revealed {
     /* background-color: rgb(200, 200, 200, .75); */
-    background-color: rgb(150, 150, 200);
+    background-color: rgb(150, 150, 175);
 }
 
 .mine i {

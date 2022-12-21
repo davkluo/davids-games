@@ -23,14 +23,18 @@ const NEIGHBOUR_CELL_OFFSETS = [
   [0, -1], [0, 1],
   [1, -1], [1, 0], [1, 1]
 ];
+const NUM_SCORES_ON_LEADERBOARD = 20;
 
 const BOMB_ICON_HTML = '<i class="fa-solid fa-bomb"></i>';
 const FLAG_ICON_HTML = '<i class="fa-solid fa-flag"></i>';
 const PAUSE_ICON_HTML = '<i class="fa-solid fa-pause"></i>';
 const PLAY_ICON_HTML = '<i class="fa-solid fa-play"></i>';
+const CROWN_ICON_HTML = '<i class="fa-solid fa-crown"></i>';
+const SUSPEND_SCREEN_HTML = '<div id="suspend-screen">TEST</div>';
 
 const $startScreen = $('#start-screen');
 const $gameScreen = $('#game-screen');
+const $leaderboardScreen = $('#leaderboard');
 
 const $gameLevelSetting = $('#game-level');
 const $decLevelBtn = $('#dec-level-btn');
@@ -39,6 +43,7 @@ const $playBtn = $('#play-btn');
 const $pauseBtn = $('#pause-btn');
 const $restartBtn = $('#restart-btn');
 const $homeBtn = $('#home-btn');
+const $leaderboardBtn = $('#leaderboard-btn');
 const $clickActionToggle = $('#click-action-toggle');
 const $gameBoard = $('#game-board');
 const $timerDisplay = $('#game-timer-display');
@@ -55,6 +60,15 @@ function generateBoardHtml(rows, cols) {
       $gameBoard.append(`<div class='game-cell' id='${Cell.getCellId(row, col)}'></div>`);
     }
   }
+
+  $gameBoard.append(SUSPEND_SCREEN_HTML);
+  $('#suspend-screen').hide();
+}
+
+function showSuspendScreen(content) {
+  const $suspendScreen = $('#suspend-screen');
+  $suspendScreen.html(content)
+  $('#suspend-screen').show();
 }
 
 function updateLevelButtons() {
@@ -91,18 +105,20 @@ function createBoard() {
   game = new Game(rows, cols, mines);
 }
 
-function startGame(evt) {
-  console.debug('startGame', evt);
-
+function resetPrevGame() {
   if (game) {
     game.stopTimer();
     game = null;
   }
+}
+
+function startGame(evt) {
+  console.debug('startGame', evt);
+
+  resetPrevGame();
 
   createBoard();
   updateClickAction();
-  $clickActionToggle.on('click', toggleClickAction);
-  $(document).on('keydown', toggleClickAction);
 
   $pauseBtn.html(PAUSE_ICON_HTML);
 
@@ -132,11 +148,7 @@ function updateCellFlag(cell) {
 }
 
 function updateTimerDisplay(timeInSeconds) {
-  const minutes = Math.floor(timeInSeconds / 60);
-  const seconds = timeInSeconds % 60;
-  const minutesDisplay = minutes.toString().padStart(2, '0');
-  const secondsDisplay = seconds.toString().padStart(2, '0');
-  $timerDisplay.html(`${minutesDisplay}:${secondsDisplay}`);
+  $timerDisplay.html(convertSecondsForDisplay(timeInSeconds));
 }
 
 function updateMineCount(numMinesLeft) {
@@ -197,6 +209,7 @@ function updateClickAction(evt) {
 
 function toggleClickAction(evt) {
   console.debug('toggleClickAction', evt);
+
   if (evt.key === 'f' || evt.type === 'click') {
     $clickActionToggle.toggleClass('flag-mode');
     updateClickAction(evt);
@@ -225,39 +238,109 @@ function pauseGame(evt) {
   if (game.scoreTimerId) {
     $pauseBtn.html(PLAY_ICON_HTML);
     game.stopTimer();
-    // Do stuff to disable board
-    // Check that the game isn't over
-    // Show pause menu
+    showSuspendScreen('PAUSED');
   } else {
     $pauseBtn.html(PAUSE_ICON_HTML);
     game.startTimer();
+    $('#suspend-screen').hide();
   }
 }
 
-function restartGame(evt) {
-  // Make sure stuff like pause menu is gone?
-
-  startGame();
-}
-
 function goHome(evt) {
+  game.stopTimer();
   game = null;
   $startScreen.show();
   $gameScreen.hide();
 }
 
-//call function to set default values for rows/cols/mines
+function convertSecondsForDisplay(timeInSeconds) {
+  const minutes = Math.floor(timeInSeconds / 60);
+  const seconds = timeInSeconds % 60;
+  const minutesDisplay = minutes.toString().padStart(2, '0');
+  const secondsDisplay = seconds.toString().padStart(2, '0');
+
+  return `${minutesDisplay}:${secondsDisplay}`;
+}
+
+function convertUTCToYYYYMMDD(dateInUTC) {
+  const date = new Date(dateInUTC);
+  return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function generateLeaderboardListItem(score, rank) {
+  let $listItem = $('<li>');
+  if (score) {
+    // Left side of list item
+    const $leftDiv = $('<div>');
+    const $userLink = $('<a>');
+
+    $leftDiv.addClass('leaderboard-left-div');
+    $userLink.attr('href', `/users/${score.user_id}`);
+    $userLink.html(score.user_display_name);
+
+    $leftDiv.append($userLink);
+    if (rank < 3) $leftDiv.append(CROWN_ICON_HTML);
+
+    // Right side of list item
+    const $rightDiv = $('<div>');
+    const $timeDiv = $('<div>');
+    const $dateDiv = $('<div>');
+
+    $rightDiv.addClass('leaderboard-right-div');
+    $timeDiv.html(convertSecondsForDisplay(score.time));
+    $timeDiv.addClass('leaderboard-time-div');
+    $dateDiv.html(convertUTCToYYYYMMDD(score.submitted_at));
+    $dateDiv.addClass('leaderboard-date-div');
+
+    $rightDiv.append($timeDiv);
+    $rightDiv.append($dateDiv);
+
+    $listItem.append($leftDiv);
+    $listItem.append($rightDiv);
+  }
+  return $listItem;
+}
+
+async function fillLeaderboard() {
+  const response = await axios.get(
+    `${DAVIDS_GAMES_BASE_API_URL}/api/minesweeper/scores`
+  );
+
+  const scores = response.data.scores;
+
+  for (let level in scores) {
+    $(`#${level}-scores`).empty();
+    for (let i = 0; i < NUM_SCORES_ON_LEADERBOARD; i++) {
+      $(`#${level}-scores`).append(
+        generateLeaderboardListItem(scores[level][i], i)
+      );
+    }
+  }
+}
+
+function toggleLeaderboard(evt) {
+  if ($leaderboardScreen.is(':hidden')) {
+    fillLeaderboard();
+    $leaderboardScreen.show();
+  } else {
+    $leaderboardScreen.hide();
+  }
+}
+
 loadDefaultDifficulty();
 $gameScreen.hide();
+$leaderboardScreen.hide();
 $decLevelBtn.on('click', decreaseLevel);
 $incLevelBtn.on('click', increaseLevel);
 $playBtn.on('click', startGame);
 $pauseBtn.on('click', pauseGame);
-$restartBtn.on('click', restartGame);
+$restartBtn.on('click', startGame);
 $homeBtn.on('click', goHome);
 $gameBoard.on('click', '.game-cell', handleClick);
 $gameBoard.on('contextmenu', '.game-cell', handleRightClick);
-
+$clickActionToggle.on('click', toggleClickAction);
+$(document).on('keydown', toggleClickAction);
+$leaderboardBtn.on('click', toggleLeaderboard);
 
 
 /*

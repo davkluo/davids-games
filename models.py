@@ -195,7 +195,7 @@ class MinesweeperScore(db.Model):
             "user_id": self.user_id,
             "time": self.time,
             "level": self.level,
-            "submitted_ad": self.submitted_at,
+            "submitted_at": self.submitted_at,
             "user_display_name": self.user.display_name
         }
 
@@ -232,11 +232,6 @@ class MinesweeperStat(db.Model):
         nullable = False,
         default = 0
     )
-    games_lost = db.Column(
-        db.Integer,
-        nullable = False,
-        default = 0
-    )
     beginner_games_won = db.Column(
         db.Integer,
         nullable = False,
@@ -267,10 +262,10 @@ class MinesweeperStat(db.Model):
         nullable = False,
         default = 0
     )
-    lose_streak = db.Column(
-        db.Integer,
+    last_played_at = db.Column(
+        db.DateTime,
         nullable = False,
-        default = 0
+        default = db.func.now()
     )
 
 
@@ -292,7 +287,7 @@ class MinesweeperAchievement(db.Model):
         db.Text,
         nullable = False
     )
-    html_string = db.Column(
+    color = db.Column(
         db.Text,
         nullable = False
     )
@@ -322,5 +317,4 @@ class UserMinesweeperAchievement(db.Model):
 
     # TODO:
     # preferences -> make this a to-do for now...
-    # history -> just make last played column in stats?
     # games table -> maybe when we have more games

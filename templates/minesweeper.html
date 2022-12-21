@@ -29,6 +29,24 @@
         </div>
       </div>
       <button class='mb-5' id='play-btn'>START</button>
+      <div id='leaderboard-btn'>
+        <i class="fa-solid fa-ranking-star"></i>
+      </div>
+      </a>
+
+      <!-- Leaderboard -->
+      <div id='leaderboard'>
+        <span class='my-4' id='leaderboard-header'>LEADERBOARD</span>
+        <div class='leaderboard-subheader ms-5'>BEGINNER</div>
+        <ol class='scores ms-4 my-4' id='beginner-scores'>
+        </ol>
+        <div class='leaderboard-subheader ms-5'>INTERMEDIATE</div>
+        <ol class='scores ms-4 my-4' id='intermediate-scores'>
+        </ol>
+        <div class='leaderboard-subheader ms-5'>EXPERT</div>
+        <ol class='scores ms-4 my-4' id='expert-scores'>
+        </ol>
+      </div>
     </div>
 
     <div class='container' id='game-screen'>
@@ -45,7 +63,10 @@
             <div id='mine-count-display'></div>
           </div>
         </div>
-        <div id='game-board'></div>
+        <div id='game-board'>
+          <div class='suspend-screen' id='pause-screen'>GAME PAUSED</div>
+          <div class='suspend-screen' id='end-screen'>GAME END</div>
+        </div>
       </div>
 
       <div class='mt-4' id='game-controls'>
