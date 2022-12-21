@@ -252,7 +252,7 @@ def homepage():
 def show_games_page():
     """ Show the games page that lists all available games """
 
-    return render_template('base.html')
+    return render_template('games.html')
 
 # TODO:
 # list users page

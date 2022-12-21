@@ -224,3 +224,46 @@ transition: box-shadow .25s;
     color: rgb(205, 255, 210);
     border-color: rgb(205, 255, 210);
 }
+
+#game-thumbnail-list {
+    gap: 2rem;
+}
+
+.game-thumbnail {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20rem;
+    width: 20rem;
+    padding: 0;
+    transition: transform .25s;
+}
+
+.game-thumbnail:hover {
+    transform: translateY(-.5rem);
+}
+
+.game-thumbnail img {
+    object-fit: fill;
+    height: 100%;
+    width: 100%;
+    border-radius: 1rem;
+    border: .5rem solid white;
+}
+
+.coming-soon-cover {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(50, 50, 50, .5);
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: black
+}

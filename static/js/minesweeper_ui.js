@@ -26,16 +26,23 @@ const NEIGHBOUR_CELL_OFFSETS = [
 
 const BOMB_ICON_HTML = '<i class="fa-solid fa-bomb"></i>';
 const FLAG_ICON_HTML = '<i class="fa-solid fa-flag"></i>';
+const PAUSE_ICON_HTML = '<i class="fa-solid fa-pause"></i>';
+const PLAY_ICON_HTML = '<i class="fa-solid fa-play"></i>';
 
 const $startScreen = $('#start-screen');
+const $gameScreen = $('#game-screen');
+
 const $gameLevelSetting = $('#game-level');
 const $decLevelBtn = $('#dec-level-btn');
 const $incLevelBtn = $('#inc-level-btn');
 const $playBtn = $('#play-btn');
-const $clickActionSwitch = $('#click-action-switch');
-const $clickActionSwitchLabel = $('#click-action-switch-label');
+const $pauseBtn = $('#pause-btn');
+const $restartBtn = $('#restart-btn');
+const $homeBtn = $('#home-btn');
+const $clickActionToggle = $('#click-action-toggle');
 const $gameBoard = $('#game-board');
-const $timerDisplay = $('#game-timer');
+const $timerDisplay = $('#game-timer-display');
+const $mineCountDisplay = $('#mine-count-display');
 
 let levelIndex = 0;
 let game;
@@ -90,14 +97,19 @@ function startGame(evt) {
   if (game) {
     game.stopTimer();
     game = null;
-    updateTimerDisplay(0);
   }
 
   createBoard();
   updateClickAction();
-  $clickActionSwitch.on('change', updateClickAction);
+  $clickActionToggle.on('click', toggleClickAction);
   $(document).on('keydown', toggleClickAction);
 
+  $pauseBtn.html(PAUSE_ICON_HTML);
+
+  updateTimerDisplay(0);
+  updateMineCount(game.mines);
+
+  $gameScreen.show();
   $startScreen.hide();
 }
 
@@ -125,6 +137,10 @@ function updateTimerDisplay(timeInSeconds) {
   const minutesDisplay = minutes.toString().padStart(2, '0');
   const secondsDisplay = seconds.toString().padStart(2, '0');
   $timerDisplay.html(`${minutesDisplay}:${secondsDisplay}`);
+}
+
+function updateMineCount(numMinesLeft) {
+  $mineCountDisplay.html(numMinesLeft.toString().padStart(2, '0'));
 }
 
 function handleClick(evt) {
@@ -172,19 +188,17 @@ function handleRightClick(evt) {
 
 function updateClickAction(evt) {
   console.debug('updateClickAction', evt);
-  if ($clickActionSwitch.prop('checked')) {
+  if ($clickActionToggle.hasClass('flag-mode')) {
     game.clickAction = 'flag';
-    $clickActionSwitchLabel.html('Flag Cells');
   } else {
     game.clickAction = 'reveal';
-    $clickActionSwitchLabel.html('Reveal Cells');
   }
 }
 
 function toggleClickAction(evt) {
   console.debug('toggleClickAction', evt);
-  if (evt.key === 'f') {
-    $clickActionSwitch.prop('checked', !$clickActionSwitch.prop('checked'));
+  if (evt.key === 'f' || evt.type === 'click') {
+    $clickActionToggle.toggleClass('flag-mode');
     updateClickAction(evt);
   }
 }
@@ -203,11 +217,44 @@ function increaseLevel(evt) {
   updateLevelButtons();
 }
 
+function pauseGame(evt) {
+  if (game.gameOver || !game.gameStarted) {
+    return;
+  }
+
+  if (game.scoreTimerId) {
+    $pauseBtn.html(PLAY_ICON_HTML);
+    game.stopTimer();
+    // Do stuff to disable board
+    // Check that the game isn't over
+    // Show pause menu
+  } else {
+    $pauseBtn.html(PAUSE_ICON_HTML);
+    game.startTimer();
+  }
+}
+
+function restartGame(evt) {
+  // Make sure stuff like pause menu is gone?
+
+  startGame();
+}
+
+function goHome(evt) {
+  game = null;
+  $startScreen.show();
+  $gameScreen.hide();
+}
+
 //call function to set default values for rows/cols/mines
 loadDefaultDifficulty();
+$gameScreen.hide();
 $decLevelBtn.on('click', decreaseLevel);
 $incLevelBtn.on('click', increaseLevel);
 $playBtn.on('click', startGame);
+$pauseBtn.on('click', pauseGame);
+$restartBtn.on('click', restartGame);
+$homeBtn.on('click', goHome);
 $gameBoard.on('click', '.game-cell', handleClick);
 $gameBoard.on('contextmenu', '.game-cell', handleRightClick);
 

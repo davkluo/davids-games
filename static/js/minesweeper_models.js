@@ -1,6 +1,7 @@
 'use strict';
 
 const GAME_TIMER_UPDATE_INTERVAL_MS = 50;
+const MS_PER_SEC = 1000;
 const MAX_GAME_TIME_S = 59 * 60 + 59;
 
 const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5001'
@@ -51,6 +52,8 @@ class Game {
     this.startTime = null;
     this.scoreTime = 0;
     this.scoreTimerId = null;
+    this.gameOver = false;
+    this.gameStarted = false;
 
     this.generateBoardData();
     this.updateTimer = this.updateTimer.bind(this);
@@ -153,6 +156,7 @@ class Game {
 
   async endGameWin() {
     this.stopTimer();
+    this.gameOver = true;
     const scoreData = {
       time: this.scoreTime,
       level: Object.keys(DIFFICULTY_LEVELS)[levelIndex]
@@ -167,6 +171,7 @@ class Game {
 
   async endGameLoss() {
     this.stopTimer();
+    this.gameOver = true;
   }
   // TODO: Deactivate board on game-over
 
@@ -215,6 +220,7 @@ class Game {
     cell.status.flag = !cell.status.flag;
     this.numFlagged = this.numFlagged + ((cell.status.flag) ? 1 : -1);
     updateCellFlag(cell);
+    updateMineCount(this.mines - this.numFlagged);
   }
 
   /**
@@ -273,11 +279,12 @@ class Game {
     this.firstClick = false;
     this.moveMines(cell, ...this.getValidNeighbours(cell));
     this.revealCells(cell);
+    this.gameStarted = true;
     this.startTimer();
   }
 
   startTimer() {
-    this.startTime = Date.now();
+    this.startTime = Date.now() - this.scoreTime * MS_PER_SEC;
     this.scoreTimerId = setInterval(
       this.updateTimer,
       GAME_TIMER_UPDATE_INTERVAL_MS

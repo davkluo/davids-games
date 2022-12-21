@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block body_class %}onboarding{% endblock %}
+
+{% block content %}
+
+  <div class="row justify-content-center mt-5 pt-5" id='game-thumbnail-list'>
+    <a href='/games/minesweeper' class="col-md-6 col-lg-4 game-thumbnail">
+      <img src='/static/images/minesweeper_thumbnail.png' alt=''>
+    </a>
+    <a class="col-md-6 col-lg-4 game-thumbnail">
+      <img src='/static/images/default-pic.png' alt=''>
+      <div class='coming-soon-cover'>COMING SOON</div>
+    </a>
+  </div>
+
+{% endblock %}
