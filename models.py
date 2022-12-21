@@ -126,7 +126,7 @@ class User(db.Model, UserMixin):
 
     minesweeper_scores = db.relationship('MinesweeperScore', backref = 'user')
 
-    minesweeper_stats = db.relationship('MinesweeperStat', backref = 'user')
+    minesweeper_stat = db.relationship('MinesweeperStat', backref = 'user')
 
     minesweeper_achievements = db.relationship(
         'MinesweeperAchievement',
@@ -268,6 +268,24 @@ class MinesweeperStat(db.Model):
         default = db.func.now()
     )
 
+    ###### INSTANCE METHODS ######
+
+    def serialize(self):
+        """Serialize to dictionary"""
+
+        return {
+            "user_id": self.user_id,
+            "games_played": self.games_played,
+            "games_won": self.games_won,
+            "beginner_games_won": self.beginner_games_won,
+            "intermediate_games_won": self.intermediate_games_won,
+            "expert_games_won": self.expert_games_won,
+            "time_played": self.time_played,
+            "cells_revealed": self.cells_revealed,
+            "win_streak": self.win_streak,
+            "last_played_at": self.last_played_at
+        }
+
 
 class MinesweeperAchievement(db.Model):
     """ Minesweeper achievements table model """
@@ -281,7 +299,8 @@ class MinesweeperAchievement(db.Model):
     )
     title = db.Column(
         db.String(50),
-        nullable = False
+        nullable = False,
+        unique = True
     )
     description = db.Column(
         db.Text,
@@ -291,6 +310,17 @@ class MinesweeperAchievement(db.Model):
         db.Text,
         nullable = False
     )
+
+    ###### INSTANCE METHODS ######
+
+    def serialize(self):
+        """Serialize to dictionary"""
+
+        return {
+            "title": self.title,
+            "description": self.description,
+            "color": self.color,
+        }
 
 
 class UserMinesweeperAchievement(db.Model):

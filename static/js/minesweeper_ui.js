@@ -49,6 +49,8 @@ const $gameBoard = $('#game-board');
 const $timerDisplay = $('#game-timer-display');
 const $mineCountDisplay = $('#mine-count-display');
 
+const $toastContainer = $('.toast-container');
+
 let levelIndex = 0;
 let game;
 
@@ -265,6 +267,28 @@ function convertSecondsForDisplay(timeInSeconds) {
 function convertUTCToYYYYMMDD(dateInUTC) {
   const date = new Date(dateInUTC);
   return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function displayAchievement(achievement) {
+  $toastContainer.append(
+    `<div class="toast align-items-center text-light bg-dark border-0" data-bs-animation='true' data-bs-delay="10000" data-bs-autohide="true" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <span>Achievement Unlocked:<span>
+          <p class='mt-2 mb-0 pb-0'>
+            <i class="fa-solid fa-medal" style="color:${achievement.color}"></i>
+            <b>${achievement.title}</b>: ${achievement.description}
+          </p>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>`
+  )
+}
+
+function initializeAndShowToasts() {
+  $('.toast').toast();
+  $('.toast').toast('show');
 }
 
 function generateLeaderboardListItem(score, rank) {

@@ -73,7 +73,6 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-
 ###### User signup/login/logout ######
 
 @app.before_request
@@ -241,34 +240,43 @@ def submit_minesweeper_stats():
     """ Submit minesweeper stats to database.
     Calculates achievements and sends back in JSON response.
     """
-    # data = request.json
-    return jsonify(stats='', new_achievements=[{
-        'title':'test achievement',
-        'description':'test description'}])
-    # curr_stat = MinesweeperStat.query.filter_by(user_id = current_user.id)
+    data = request.json
+    curr_stat = MinesweeperStat.query.get(current_user.id)
 
-    # curr_stat.games_played += data['games_played']
-    # curr_stat.games_won += data['games_won']
-    # curr_stat.beginner_games_won += data['beginner_games_won']
-    # curr_stat.intermediate_games_won += data['intermediate_games_won']
-    # curr_stat.expert_games_won += data['expert_games_won']
-    # curr_stat.time_played += data['time_played']
-    # curr_stat.cells_revealed += data['cells_revealed']
-    # curr_stat.win_streak = (
-    #     (data['win_streak'] + 1)
-    #     if data['games_won'] else
-    #     0
-    # )
-    # curr_stat.last_played_at = data['last_played_at']
+    if not curr_stat:
+        print('yes')
+        curr_stat = MinesweeperStat(user_id = current_user.id)
 
-    # db.session.add(curr_stat)
-    # db.session.commit()
-    # calc_minesweeper_achievements(curr_stat, data)
+        db.session.add(curr_stat)
+        db.session.commit()
 
+    curr_stat.games_played += data['games_played']
+    curr_stat.games_won += data['games_won']
+    curr_stat.beginner_games_won += data['beginner_games_won']
+    curr_stat.intermediate_games_won += data['intermediate_games_won']
+    curr_stat.expert_games_won += data['expert_games_won']
+    curr_stat.time_played += data['time_played']
+    curr_stat.cells_revealed += data['cells_revealed']
+    curr_stat.win_streak = (
+        (curr_stat.win_streak + 1)
+        if data['games_won'] else
+        0
+    )
+    curr_stat.last_played_at = data['last_played_at']
 
+    db.session.add(curr_stat)
+    db.session.commit()
 
-# @app.post('/api/minesweeper/stats')
-# Will return data including any new achievements
+    new_achievements = calc_minesweeper_achievements(current_user, data)
+    current_user.minesweeper_achievements.extend(new_achievements)
+
+    db.session.commit()
+
+    serialized = [a.serialize() for a in new_achievements]
+    return jsonify(
+        stats=curr_stat.serialize(),
+        new_achievements=serialized
+    )
 
 
 ###### GENERAL ROUTES ######
@@ -294,6 +302,3 @@ def show_games_page():
 # 404 page
 # get minesweeper stats for user (to display on profile)
 # patch minesweeper stats
-# calculate if user got achievements
-# style game
-# style page

@@ -28,6 +28,17 @@ body {
     position: fixed;
     bottom: 0;
     left: 0;
+    z-index: 3;
+}
+
+.toast-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.toast-body span {
+    font-size: .7rem;
 }
 
 nav {

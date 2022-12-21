@@ -199,9 +199,15 @@ class Game {
       gameData
     );
 
+    // Remove all previous toasts
+    $('.toast').remove();
+
     for (let achievement of response.data.new_achievements) {
-      console.log(achievement.title, achievement.description);
+      displayAchievement(achievement);
+      console.log(achievement.title, achievement.description, achievement.color);
     }
+
+    initializeAndShowToasts();
   }
 
   /**
