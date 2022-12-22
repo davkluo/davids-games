@@ -20,7 +20,7 @@ INSERT INTO minesweeper_achievements (title, description, color)
     ('YOU are the Minesweeper', 'Play 100 times.', 'rgb(30, 144, 255)'),
     ('Speedy Beginner', 'Win on beginner difficulty in under 20 seconds.', 'rgb(219, 112, 147)'),
     ('Speedy Intermediate', 'Win on intermediate difficulty in under 80 seconds.', 'rgb(238, 232, 170)'),
-    ('Speedy Expert', 'Win on beginner difficulty in under 200 seconds.', 'rgb(255, 255, 84)'),
+    ('Speedy Expert', 'Win on expert difficulty in under 200 seconds.', 'rgb(255, 255, 84)'),
     ('Master Oogway', 'Take over 600 seconds to win a game.', 'rgb(255, 20, 147)'),
     ('Addicted', 'Accumulate over an hour of total playtime.', 'rgb(0, 0, 255)'),
     ('On A Roll', 'Win 5 times in a row.', 'rgb(255, 160, 122)'),

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if users|length == 0 %}
+<div class="row justify-content-center mt-5 pt-5">
+  <div class="col-md-7 col-lg-5 d-flex flex-column align-items-center">
+    <h2 class='no-user-msg'>SORRY, NO USERS FOUND</h2>
+  </div>
+</div>
+{% else %}
+
+<div class="row justify-content-center mt-5 pt-5">
+  <div class="col-sm-9 d-flex flex-column align-items-center" id='user-index'>
+
+    {% for user in users %}
+
+      <div class="card user-index-card">
+        <a class="card-body user-index-link row" href='/users/{{ user.id }}'>
+          <div class='col-4 d-flex align-items-center justify-content-center h-100'>
+            <img src="{{ user.image_url }}" class="card-img-top" alt="...">
+          </div>
+          <div class='col-8 d-flex flex-column justify-content-center h-100'>
+            <p class="user-card-title mt-1">{{user.display_name}}</p>
+            {% if user.bio %}
+              <p class="user-card-text my-1">{{user.bio}}</p>
+            {% endif %}
+          </div>
+        </a>
+      </div>
+
+
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
+{% endblock %}

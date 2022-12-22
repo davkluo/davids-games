@@ -12,7 +12,7 @@ class UserAddForm(FlaskForm):
 
     username = StringField(
         'Username',
-        validators=[Length(min=6, max=20)]
+        validators=[Length(min=5, max=20)]
     )
     password = PasswordField(
         'Password',
@@ -20,7 +20,7 @@ class UserAddForm(FlaskForm):
     )
     display_name = StringField(
         'Display Name',
-        validators=[Length(min=6, max=20)]
+        validators=[Length(min=5, max=20)]
     )
     email = StringField(
         'E-mail',

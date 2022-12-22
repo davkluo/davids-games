@@ -131,6 +131,10 @@
     overflow-y: auto;
 }
 
+#leaderboard::-webkit-scrollbar {
+    width: 0;
+}
+
 #leaderboard-header {
     font-weight: bold;
     font-size: 2rem;

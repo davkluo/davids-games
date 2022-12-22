@@ -84,8 +84,8 @@
             <img src='{{ current_user.image_url }}' alt='' id='navbar-avatar'>
           </a>
           <ul id='navbar-user-menu' class="dropdown-menu dropdown-menu-end" aria-labelledby="navbar-user-dropdown">
-            <li><a class="dropdown-item" href="#">PROFILE</a></li>
-            <li><a class="dropdown-item" href="#">PREFERENCES</a></li>
+            <li><a class="dropdown-item" href="/users/{{ current_user.id }}">PROFILE</a></li>
+            <!-- <li><a class="dropdown-item" href="#">PREFERENCES</a></li> -->
             <li><hr class="dropdown-divider"></li>
             <li>
               <form action='/logout' method='POST'>

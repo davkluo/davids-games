@@ -207,7 +207,7 @@ class MinesweeperScore(db.Model):
 
         return (cls.query
             .filter(cls.level == level)
-            .order_by(cls.time)
+            .order_by(cls.time, cls.submitted_at)
             .limit(qty)
             .all())
 

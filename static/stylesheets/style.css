@@ -41,6 +41,59 @@ body {
     font-size: .7rem;
 }
 
+#user-index {
+    gap: 1rem;
+}
+
+.user-index-card {
+    width: 60%;
+    min-width: 20rem;
+    height: 6rem;
+    background-color: rgb(23, 23, 35);
+    border-radius: 1rem;
+}
+
+.user-index-link {
+    width: 100%;
+    color: white;
+    text-decoration: none;
+}
+
+.user-index-link:hover img {
+    box-shadow: 0 0 .5rem 0.1rem rgb(205, 255, 210);
+}
+
+.user-index-link:hover {
+    color: white;
+}
+
+.user-index-link p {
+    margin: 0;
+    height: auto;
+}
+
+.user-index-card img {
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 100%;
+    transition: box-shadow .25s;
+}
+
+.user-card-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.user-card-text {
+    font-size: .7rem;
+}
+
+.no-user-msg {
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
 nav {
     background-color: rgb(5, 1, 10);
     box-shadow: 0 0 .3rem 0.1rem rgb(205, 255, 210);

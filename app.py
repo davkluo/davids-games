@@ -108,6 +108,7 @@ def signup():
 
             login_user(user)
 
+            flash('Successfully signed up.', 'success')
             return redirect(url_for('homepage'))
 
         except IntegrityError:
@@ -139,6 +140,9 @@ def signup():
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     """ Handle showing and submission of login form. """
+
+    if current_user.is_authenticated:
+        logout_user()
 
     form = LoginForm()
 
@@ -182,7 +186,41 @@ def logout():
 
 ###### General user routes ######
 
-# List of users with query string
+@app.get('/users')
+@login_required
+def list_users():
+    """ List all users, with an optional filter from the query string. """
+
+    search = request.args.get('q')
+
+    if not search:
+        users = User.query.all()
+    else:
+        users = User.query.filter(User.display_name.like(f"%{search}%")).all()
+
+    return render_template('users/index.html', users=users)
+
+
+@app.get('/users/<int:user_id>')
+@login_required
+def show_user_profile(user_id):
+    """ Show user profile page. """
+
+    minesweeper_achievements = (db.session
+        .query(MinesweeperAchievement)
+        .join(UserMinesweeperAchievement)
+        .filter(UserMinesweeperAchievement.user_id == user_id)
+        .order_by(MinesweeperAchievement.id)
+        .all()
+    )
+
+    return render_template(
+        'users/detail.html',
+        user = User.query.get_or_404(user_id),
+        minesweeper_achievements = minesweeper_achievements
+    )
+
+
 # Show user
 #edit user
 #delete user
