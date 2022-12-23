@@ -6,29 +6,37 @@
 <div class="row justify-content-center mt-5 pt-5">
   <div class="col-sm-9 d-flex flex-column align-items-center" id='user-index'>
 
-    {% for achievement in minesweeper_achievements %}
+    <div class="card user-index-card">
+      <a class="card-body user-index-link row" href='/users/{{ user.id }}'>
+        <div class='col-4 d-flex align-items-center justify-content-center h-100'>
+          <img src="{{ user.image_url }}" class="card-img-top" alt="...">
+        </div>
+        <div class='col-8 d-flex flex-column justify-content-center h-100'>
+          <p class="user-card-title mt-1">{{user.display_name}}</p>
+          {% if user.bio %}
+            <p class="user-card-text my-1">{{user.bio}}</p>
+          {% endif %}
+        </div>
+      </a>
+    </div>
 
-      <i class="fa-solid fa-medal" style='color: {{ achievement.color }}'></i>
-      {{achievement.title}}
-      {{achievement.description}}
+    MINESWEEPER
+    <div class='minesweeper-achievement-container'>
+      {% for achievement in minesweeper_achievements %}
+        <div class='achievement-icon' style="color: {{ achievement.color }}"
+          data-bs-toggle='tooltip' data-bs-html='true' data-bs-placement='bottom'
+          title="<b>{{ achievement.title }}</b>: {{ achievement.description }}">
+          <i class="fa-solid fa-medal"></i>
+        </div>
+      {% endfor %}
+    </div>
 
-    {% endfor %}
-
-      <div class="card user-index-card">
-        <a class="card-body user-index-link row" href='/users/{{ user.id }}'>
-          <div class='col-4 d-flex align-items-center justify-content-center h-100'>
-            <img src="{{ user.image_url }}" class="card-img-top" alt="...">
-          </div>
-          <div class='col-8 d-flex flex-column justify-content-center h-100'>
-            <p class="user-card-title mt-1">{{user.display_name}}</p>
-            {% if user.bio %}
-              <p class="user-card-text my-1">{{user.bio}}</p>
-            {% endif %}
-          </div>
-        </a>
-      </div>
 
   </div>
 </div>
 
+{% endblock %}
+
+{% block page_js %}
+  <script src='/static/js/tooltips.js'></script>
 {% endblock %}

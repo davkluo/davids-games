@@ -331,3 +331,9 @@ transition: box-shadow .25s;
     font-weight: bold;
     color: black
 }
+
+.minesweeper-achievement-container {
+    display: flex;
+    justify-content: start;
+    gap: 1.5rem;
+}
