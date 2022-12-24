@@ -23,7 +23,7 @@ from models import (
 )
 
 from forms import (
-    LoginForm, UserAddForm, CSRFProtection
+    LoginForm, UserAddForm, CSRFProtection, UserEditForm
 )
 
 from minesweeper import (
@@ -175,7 +175,7 @@ def logout():
     form = g.csrf_form
 
     if not form.validate_on_submit():
-        flash('Access unauthorized.', 'danger')
+        flash('Unauthorized access.', 'danger')
         return redirect(url_for('homepage'))
 
     logout_user()
@@ -194,9 +194,12 @@ def list_users():
     search = request.args.get('q')
 
     if not search:
-        users = User.query.all()
+        users = User.query.order_by(User.display_name).all()
     else:
-        users = User.query.filter(User.display_name.like(f"%{search}%")).all()
+        users = (User.query
+            .filter(User.display_name.like(f"%{search}%"))
+            .order_by(User.display_name)
+            .all())
 
     return render_template('users/index.html', users=users)
 
@@ -224,9 +227,52 @@ def show_user_profile(user_id):
     )
 
 
-# Show user
-#edit user
-#delete user
+@app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    """ Show and handle submission of user edit form """
+
+    if current_user.id != user_id:
+        flash('Unauthorized access.', 'danger')
+        return render_template(url_for('homepage'))
+
+    form = UserEditForm(obj=current_user)
+
+    if form.validate_on_submit():
+        form.populate_obj(current_user)
+
+        db.session.add(current_user)
+        db.session.commit()
+
+        return redirect(url_for('show_user_profile', user_id = user_id))
+
+    return render_template('/users/edit.html', form=form)
+
+
+@app.post('/users/<int:user_id>/delete')
+@login_required
+def delete_user(user_id):
+    """Delete user.
+
+    Redirect to signup page.
+    """
+
+    if current_user.id != user_id:
+        flash('Unauthorized access.', 'danger')
+
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        User.query.filter(User.id == current_user.id).delete()
+        db.session.commit()
+
+        logout_user()
+
+        flash('User successfully deleted. See you again!', 'success')
+        return redirect(url_for('signup'))
+
+    flash('Unauthorized access.', 'danger')
+    return redirect('/')
 
 
 ###### Minesweeper game routes ######
@@ -335,11 +381,16 @@ def show_games_page():
 
     return render_template('games.html')
 
-# TODO:
-# list users page
-# edit user page
-# user profile page
-# user delete route
-# 404 page
-# get minesweeper stats for user (to display on profile)
-# patch minesweeper stats
+
+###### ERROR HANDLING ROUTES ######
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """ Show the 404 page """
+
+    return render_template('404_not_found.html')
+
+
+#TODO:
+# Restructure using flask blueprints
+# Testing

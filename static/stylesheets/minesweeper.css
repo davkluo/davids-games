@@ -1,4 +1,6 @@
 /* TODO: Change to rems */
+/* Refactor to be more DRY */
+/* Utilize CSS custom variables */
 
 * {
     margin: 0;

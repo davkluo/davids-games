@@ -28,6 +28,13 @@ class UserAddForm(FlaskForm):
     )
 
 
+class UserEditForm(FlaskForm):
+    """ Form for editing users. """
+
+    image_url = StringField('Image URL')
+    bio = StringField('Bio')
+
+
 class LoginForm(FlaskForm):
     """ Login form. """
 

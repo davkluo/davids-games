@@ -10,10 +10,11 @@
       <div id='user-image-wrapper' class='col-5 col-md-4 col-lg-3 d-flex justify-content-center align-items-center position-relative'>
         <img id='user-profile-image' src='{{ user.image_url }}' alt=''>
         {% if user.id == current_user.id %}
+          <a href='/users/{{ user.id }}/edit' id='user-edit-btn'>
+            <i class="fa-solid fa-pen"></i>
+          </a>
           <form>
-            <button formmethod='GET' formaction='/users/{{ user.id }}' id='user-edit-btn'>
-              <i class="fa-solid fa-pen"></i>
-            </button>
+            {{ g.csrf_form.hidden_tag() }}
             <button formmethod='POST' formaction='/users/{{ user.id }}/delete' id='user-delete-btn'>
               <i class="fa-solid fa-trash"></i>
             </button>

@@ -1,3 +1,6 @@
+/* Refactor to be more DRY */
+/* Utilize CSS custom variables */
+
 /* * {
     font-family: inherit;
 } */
@@ -454,6 +457,7 @@ transition: box-shadow .25s;
 
 #user-edit-btn {
     transform: translate(-150%, 30%);
+    text-decoration: none;
 }
 
 #user-delete-btn {
@@ -470,10 +474,12 @@ transition: box-shadow .25s;
     border-color: rgb(255, 205, 250);
 }
 
-#user-image-wrapper form {
+#user-image-wrapper button,
+#user-image-wrapper a {
     visibility: hidden;
 }
 
-#user-image-wrapper:hover form {
+#user-image-wrapper:hover button,
+#user-image-wrapper:hover a {
     visibility: visible;
 }

@@ -67,7 +67,7 @@ class User(db.Model, UserMixin):
         nullable = False,
         default = DEFAULT_USER_IMAGE_URL
     )
-    country = db.Column(
+    country = db.Column( #TODO: Do something with this country value
         db.String(30)
     )
     bio = db.Column(
@@ -389,7 +389,6 @@ class UserMinesweeperAchievement(db.Model):
         default = db.func.now()
     )
 
-
-    # TODO:
-    # preferences -> make this a to-do for now...
+    # TODO: In the future
+    # user_preferences -> keep track of site dark mode
     # games table -> maybe when we have more games
