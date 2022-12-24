@@ -4,33 +4,105 @@
 
 
 <div class="row justify-content-center mt-5 pt-5">
-  <div class="col-sm-9 d-flex flex-column align-items-center" id='user-index'>
+  <div class="col-sm-10 d-flex flex-column align-items-center" id='user-profile'>
 
-    <div class="card user-index-card">
-      <a class="card-body user-index-link row" href='/users/{{ user.id }}'>
-        <div class='col-4 d-flex align-items-center justify-content-center h-100'>
-          <img src="{{ user.image_url }}" class="card-img-top" alt="...">
+    <div class='row w-100'>
+      <div id='user-image-wrapper' class='col-5 col-md-4 col-lg-3 d-flex justify-content-center align-items-center position-relative'>
+        <img id='user-profile-image' src='{{ user.image_url }}' alt=''>
+        {% if user.id == current_user.id %}
+          <form>
+            <button formmethod='GET' formaction='/users/{{ user.id }}' id='user-edit-btn'>
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button formmethod='POST' formaction='/users/{{ user.id }}/delete' id='user-delete-btn'>
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </form>
+        {% endif %}
+      </div>
+      <div class='col-7 col-md-8 ps-3 d-flex flex-column align-items-baseline justify-content-center'>
+        <div id='display-name'>
+          {{ user.display_name }}
         </div>
-        <div class='col-8 d-flex flex-column justify-content-center h-100'>
-          <p class="user-card-title mt-1">{{user.display_name}}</p>
+        <div id='user-bio'>
           {% if user.bio %}
-            <p class="user-card-text my-1">{{user.bio}}</p>
+            {{ user.bio }}
           {% endif %}
         </div>
-      </a>
+      </div>
     </div>
 
-    MINESWEEPER
-    <div class='minesweeper-achievement-container'>
-      {% for achievement in minesweeper_achievements %}
-        <div class='achievement-icon' style="color: {{ achievement.color }}"
-          data-bs-toggle='tooltip' data-bs-html='true' data-bs-placement='bottom'
-          title="<b>{{ achievement.title }}</b>: {{ achievement.description }}">
-          <i class="fa-solid fa-medal"></i>
+    {% if minesweeper_stats %}
+    <div class="accordion mt-5" id="profile-games-accordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="minesweeper-accordion-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+            data-bs-target="#minesweeper-collapse" aria-expanded="true" aria-controls="minesweeper-collapse">
+            <div class='game-title'>
+              MINESWEEPER
+            </div>
+            <div class='time-since-played'>
+              LAST PLAYED: {{ minesweeper_stats.calc_time_since_last_played() }} AGO
+            </div>
+          </button>
+        </h2>
+        <div id="minesweeper-collapse" class="accordion-collapse collapse show"
+          aria-labelledby="minesweeper-accordion-heading" data-bs-parent="#profile-games-accordion">
+          <div class="accordion-body pt-4">
+
+            <div class='user-game-detail'>
+              <div class='achievement-header'>ACHIEVEMENTS</div>
+              <div class='minesweeper-achievement-container'>
+                {% for achievement in minesweeper_achievements %}
+                <div class='achievement-icon' style="color: {{ achievement.color }}" data-bs-toggle='tooltip'
+                  data-bs-html='true' data-bs-placement='bottom'
+                  title="<b>{{ achievement.title }}</b>: {{ achievement.description }}">
+                  <i class="fa-solid fa-medal"></i>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class='user-game-detail'>
+              <div class='stat-header'>GAME STATS</div>
+              <div class='minesweeper-stat-container'>
+                <div class='game-stat games-played' data-bs-toggle="tooltip" data-bs-html="true"
+                  data-bs-placement="bottom" title='<b>Total Games Played</b>'>
+                  <i class="fa-solid fa-play"></i>
+                  {{ minesweeper_stats.games_played }}
+                </div>
+                <div class='game-stat games-won' data-bs-toggle='tooltip' data-bs-html='true' data-bs-placement='bottom'
+                  title="<b>Total Games Won</b>
+                    <p class='my-0'><b>Beginner</b>: {{ minesweeper_stats.beginner_games_won }}</p>
+                    <p class='my-0'><b>Intermediate</b>: {{ minesweeper_stats.intermediate_games_won }}</p>
+                    <p class='my-0'><b>Expert</b>: {{ minesweeper_stats.expert_games_won }}</p>
+                  ">
+                  <i class="fa-solid fa-face-laugh-beam"></i>
+                  {{ minesweeper_stats.games_won }}
+                </div>
+                <div class='game-stat win-streak' data-bs-toggle='tooltip' data-bs-html='true'
+                  data-bs-placement='bottom' title='<b>Win Streak</b>'>
+                  <i class="fa-solid fa-bolt"></i>
+                  {{ minesweeper_stats.win_streak }}
+                </div>
+                <div class='game-stat cells-revealed' data-bs-toggle='tooltip' data-bs-html='true'
+                  data-bs-placement='bottom' title='<b>Total Cells Revealed</b>'>
+                  <i class="fa-solid fa-arrow-pointer"></i>
+                  {{ minesweeper_stats.cells_revealed }}
+                </div>
+                <div class='game-stat time-played' data-bs-toggle='tooltip' data-bs-html='true'
+                  data-bs-placement='bottom' title='<b>Total Time Played</b>'>
+                  <i class="fa-solid fa-hourglass"></i>
+                  {{ minesweeper_stats.time_played_formatted}}
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
-      {% endfor %}
+      </div>
     </div>
-
+    {% endif %}
 
   </div>
 </div>
@@ -38,5 +110,5 @@
 {% endblock %}
 
 {% block page_js %}
-  <script src='/static/js/tooltips.js'></script>
+<script src='/static/js/tooltips.js'></script>
 {% endblock %}

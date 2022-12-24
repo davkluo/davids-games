@@ -214,10 +214,13 @@ def show_user_profile(user_id):
         .all()
     )
 
+    minesweeper_stats = MinesweeperStat.query.get(user_id)
+
     return render_template(
         'users/detail.html',
         user = User.query.get_or_404(user_id),
-        minesweeper_achievements = minesweeper_achievements
+        minesweeper_achievements = minesweeper_achievements,
+        minesweeper_stats = minesweeper_stats
     )
 
 

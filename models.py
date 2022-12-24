@@ -12,6 +12,10 @@ db = SQLAlchemy()
 DEFAULT_USER_IMAGE_URL = '/static/images/default-pic.png'
 DEFAULT_USER_ROLE = 'user'
 
+SECONDS_PER_MINUTE = 60
+SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE
+SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR
+
 
 def connect_db(app):
     """ Connect this database to provided Flask app """
@@ -285,6 +289,47 @@ class MinesweeperStat(db.Model):
             "win_streak": self.win_streak,
             "last_played_at": self.last_played_at
         }
+
+
+    def calc_time_since_last_played(self):
+        """ Calculate time since last played and return in format
+        __d __m __s """
+
+        time_in_s = round((datetime.utcnow() - self.last_played_at).total_seconds())
+
+        formatted_time = ''
+
+        days_since = time_in_s // SECONDS_PER_DAY
+        hours_since = (time_in_s % SECONDS_PER_DAY) // SECONDS_PER_HOUR
+        minutes_since = (time_in_s % SECONDS_PER_HOUR) // SECONDS_PER_MINUTE
+
+        if days_since:
+            return f'{days_since}D'
+
+        if hours_since:
+            return f'{hours_since}H'
+
+        return f'{minutes_since}M'
+
+
+    @property
+    def time_played_formatted(self):
+        """ Format time played as __h __m __s """
+
+        formatted_time = ''
+
+        hours_played = self.time_played // SECONDS_PER_HOUR
+        minutes_played = (self.time_played % SECONDS_PER_HOUR) // SECONDS_PER_MINUTE
+        seconds_played = (self.time_played % SECONDS_PER_MINUTE)
+
+        if hours_played:
+            formatted_time += f'{hours_played}H '
+        if minutes_played:
+            formatted_time += f'{minutes_played}M '
+
+        formatted_time += f'{seconds_played}S'
+
+        return formatted_time
 
 
 class MinesweeperAchievement(db.Model):
