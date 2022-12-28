@@ -99,6 +99,71 @@ class MinesweeperScoreTestCase(MinesweeperModelTestCase):
         self.assertEqual(score2_db.user, u1)
 
 
+    def test_invalid_new_Score(self):
+        """ Test invalid addition of new score """
+
+        score_no_user = MinesweeperScore(
+            user_id = None,
+            time = 100,
+            level = 'expert'
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(score_no_user)
+            db.session.commit()
+
+        db.session.rollback()
+
+        score_no_time = MinesweeperScore(
+            user_id = self.u1_id,
+            time = None,
+            level = 'expert'
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(score_no_time)
+            db.session.commit()
+
+        db.session.rollback()
+
+        score_no_level = MinesweeperScore(
+            user_id  = self.u1_id,
+            time = 100,
+            level = None
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(score_no_level)
+            db.session.commit()
+
+        db.session.rollback()
+
+
+    def test_user_deletion_cascades_to_scores(self):
+        """ Test that user deletion cascades to minesweeper scores """
+
+        score1 = MinesweeperScore(
+            user_id = self.u1_id,
+            time = 100,
+            level = 'expert'
+        )
+
+        score2 = MinesweeperScore(
+            user_id = self.u1_id,
+            time = 20,
+            level = 'beginner'
+        )
+
+        db.session.add_all([score1, score2])
+        db.session.commit()
+
+        self.assertEqual(MinesweeperScore.query.count(), 2)
+
+        User.query.filter_by(id = self.u1_id).delete()
+
+        self.assertEqual(MinesweeperScore.query.count(), 0)
+
+
     def test_get_scores_for_level(self):
         """ Test get_scores_for_level class method """
 
@@ -146,7 +211,9 @@ class MinesweeperScoreTestCase(MinesweeperModelTestCase):
         db.session.add(score1)
         db.session.commit()
 
-        serialized = score1.serialize()
+        score1_db = MinesweeperScore.query.get(score1.id)
+
+        serialized = score1_db.serialize()
         serialized.pop('id')
         serialized.pop('submitted_at')
 
@@ -160,114 +227,330 @@ class MinesweeperScoreTestCase(MinesweeperModelTestCase):
         )
 
 
-    # def test_new_message(self):
-    #     """ create a message instance and test it's properties """
+class MinesweeperStatTestCase(MinesweeperModelTestCase):
+    """ Test minesweeper stat model class """
 
-    #     u1 = User.query.get(self.u1_id)
+    def test_new_stat(self):
+        """ Test addition of new minesweeper stat """
 
-    #     new_message = Message(text = "This is a test message", user_id = u1.id)
+        u1 = User.query.get(self.u1_id)
 
-    #     db.session.add(new_message)
-    #     db.session.commit()
+        stat = MinesweeperStat(
+            user_id = u1.id,
+            games_played = 1,
+            games_won = 1,
+            beginner_games_won = 0,
+            intermediate_games_won = 0,
+            expert_games_won = 1,
+            time_played = 100,
+            cells_revealed = 381,
+            win_streak = 1,
+            last_played_at = db.func.now()
+        )
 
-    #     new_message_db = Message.query.get(new_message.id)
+        db.session.add(stat)
+        db.session.commit()
 
-    #     #testing message table
-    #     self.assertEqual(new_message_db, new_message)
-    #     self.assertEqual(new_message_db.text, "This is a test message")
+        stat_db = MinesweeperStat.query.get(u1.id)
 
+        self.assertEqual(stat, stat_db)
 
-    #     #testing user to message relationship
-    #     self.assertEqual(new_message_db.user, u1)
-    #     self.assertEqual(len(new_message_db.likers), 0)
+        self.assertEqual(stat_db.games_played, 1)
+        self.assertEqual(stat_db.games_won, 1)
+        self.assertEqual(stat_db.beginner_games_won, 0)
+        self.assertEqual(stat_db.intermediate_games_won, 0)
+        self.assertEqual(stat_db.expert_games_won, 1)
+        self.assertEqual(stat_db.time_played, 100)
+        self.assertEqual(stat_db.cells_revealed, 381)
+        self.assertEqual(stat_db.win_streak, 1)
+        self.assertIsInstance(stat_db.last_played_at, datetime)
 
-
-    # def test_new_invalid_message(self):
-    #     """ Test creating messages with invalid inputs """
-
-    #     new_message_no_text = Message(text = None, user_id=self.u1_id)
-
-    #     with self.assertRaises(IntegrityError):
-    #         db.session.add(new_message_no_text)
-    #         db.session.commit()
-    #     db.session.rollback()
-
-    #     new_message_no_user = Message(text = "This is text", user_id=None)
-
-    #     with self.assertRaises(IntegrityError):
-    #         db.session.add(new_message_no_user)
-    #         db.session.commit()
-    #     db.session.rollback()
-
-    #     new_message_non_existent_user = Message(text = "This is also text", user_id=0)
-
-    #     with self.assertRaises(IntegrityError):
-    #         db.session.add(new_message_non_existent_user)
-    #         db.session.commit()
-    #     db.session.rollback()
-
-    # def test_like_message(self):
-    #     """ Test liking a message """
-
-    #     u1 = User.query.get(self.u1_id)
-    #     m1 = Message.query.get(self.m1_id)
-
-    #     u1.liked_messages.append(m1)
-    #     db.session.commit()
-
-    #     self.assertIn(u1, m1.likers)
-    #     self.assertIn(m1, u1.liked_messages)
-    #     self.assertEqual(len(Like.query.all()), 1)
-
-    # def test_unlike_message(self):
-    #     """ Test unliking a message """
-
-    #     u1 = User.query.get(self.u1_id)
-    #     m1 = Message.query.get(self.m1_id)
-
-    #     u1.liked_messages.append(m1)
-    #     db.session.commit()
-
-    #     num_likes_before_unliking = len(Like.query.all())
-
-    #     u1.liked_messages.remove(m1)
-    #     db.session.commit()
-
-    #     num_likes_after_unliking = len(Like.query.all())
-
-    #     self.assertNotIn(u1, m1.likers)
-    #     self.assertNotIn(m1, u1.liked_messages)
-    #     self.assertEqual(num_likes_before_unliking - 1, num_likes_after_unliking)
+        self.assertEqual(len(u1.minesweeper_stat), 1)
+        self.assertEqual(stat_db.user, u1)
 
 
-    # def test_is_liked_by(self):
-    #     """ Test the Message.is_liked_by method """
+    def test_invalid_new_stat(self):
+        """ Test addition of invalid new minesweeper stat """
 
-    #     u1 = User.query.get(self.u1_id)
-    #     u2 = User.query.get(self.u2_id)
-    #     m1 = Message.query.get(self.m1_id)
+        stat = MinesweeperStat(
+            user_id = None,
+            games_played = 1,
+            games_won = 1,
+            beginner_games_won = 0,
+            intermediate_games_won = 0,
+            expert_games_won = 1,
+            time_played = 100,
+            cells_revealed = 381,
+            win_streak = 1,
+            last_played_at = db.func.now()
+        )
 
-    #     u1.liked_messages.append(m1)
-    #     db.session.commit()
+        with self.assertRaises(IntegrityError):
+            db.session.add(stat)
+            db.session.commit()
 
-    #     self.assertTrue(m1.is_liked_by(u1))
-    #     self.assertFalse(m1.is_liked_by(u2))
+        db.session.rollback()
 
 
-    # def test_delete_user_deletes_messages(self):
-    #     """ Test that deleting a user deletes their messages """
+    def test_stat_defaults(self):
+        """ Test default values for stats not provided """
 
-    #     u1 = User.query.get(self.u1_id)
-    #     u1_num_messages = len(u1.messages)
-    #     num_messages_before = len(Message.query.all())
+        stat = MinesweeperStat(
+            user_id = self.u1_id,
+            games_played = None,
+            games_won = None,
+            beginner_games_won = None,
+            intermediate_games_won = None,
+            expert_games_won = None,
+            time_played = None,
+            cells_revealed = None,
+            win_streak = None,
+            last_played_at = None
+        )
 
-    #     User.query.filter(User.id == u1.id).delete()
-    #     db.session.commit()
+        db.session.add(stat)
+        db.session.commit()
 
-    #     # Querying the message should now return None because message is deleted
-    #     m1 = Message.query.get(self.m1_id)
+        stat_db = MinesweeperStat.query.get(self.u1_id)
 
-    #     num_messages_after = len(Message.query.all())
+        self.assertEqual(stat_db.games_played, 0)
+        self.assertEqual(stat_db.games_won, 0)
+        self.assertEqual(stat_db.beginner_games_won, 0)
+        self.assertEqual(stat_db.intermediate_games_won, 0)
+        self.assertEqual(stat_db.expert_games_won, 0)
+        self.assertEqual(stat_db.time_played, 0)
+        self.assertEqual(stat_db.cells_revealed, 0)
+        self.assertEqual(stat_db.win_streak, 0)
+        self.assertIsInstance(stat_db.last_played_at, datetime)
 
-    #     self.assertIsNone(m1)
-    #     self.assertEqual(num_messages_before - u1_num_messages, num_messages_after)
+
+    def test_user_deletion_cascades_to_stats(self):
+        """ Test that user deletion cascades to minesweeper stats """
+
+        stat = MinesweeperStat(
+            user_id = self.u1_id,
+            games_played = 1,
+            games_won = 1,
+            beginner_games_won = 0,
+            intermediate_games_won = 0,
+            expert_games_won = 1,
+            time_played = 100,
+            cells_revealed = 381,
+            win_streak = 1,
+            last_played_at = db.func.now()
+        )
+
+        db.session.add(stat)
+        db.session.commit()
+
+        self.assertEqual(MinesweeperStat.query.count(), 1)
+
+        User.query.filter_by(id = self.u1_id).delete()
+
+        self.assertEqual(MinesweeperStat.query.count(), 0)
+
+
+    def test_time_played_formatted(self):
+        """ Test time_played_formatted @property method """
+
+        stat = MinesweeperStat(
+            user_id = self.u1_id,
+            games_played = 1,
+            games_won = 1,
+            beginner_games_won = 0,
+            intermediate_games_won = 0,
+            expert_games_won = 1,
+            time_played = 7199,
+            cells_revealed = 381,
+            win_streak = 1,
+            last_played_at = db.func.now()
+        )
+
+        db.session.add(stat)
+        db.session.commit()
+
+        stat_db = MinesweeperStat.query.get(self.u1_id)
+
+        self.assertEqual(stat_db.time_played_formatted, '1H 59M 59S')
+
+
+    def test_serialize(self):
+        """ Test serialize instance method """
+
+        stat = MinesweeperStat(
+            user_id = self.u1_id,
+            games_played = 1,
+            games_won = 1,
+            beginner_games_won = 0,
+            intermediate_games_won = 0,
+            expert_games_won = 1,
+            time_played = 100,
+            cells_revealed = 381,
+            win_streak = 1,
+            last_played_at = db.func.now()
+        )
+
+        db.session.add(stat)
+        db.session.commit()
+
+        stat_db = MinesweeperStat.query.get(self.u1_id)
+
+        serialized = stat_db.serialize()
+        serialized.pop('last_played_at')
+
+        self.assertEqual(serialized,
+            {
+                "user_id": self.u1_id,
+                "games_played": 1,
+                "games_won": 1,
+                "beginner_games_won": 0,
+                "intermediate_games_won": 0,
+                "expert_games_won": 1,
+                "time_played": 100,
+                "cells_revealed": 381,
+                "win_streak": 1,
+            }
+        )
+
+
+#TODO: Figure out how to test calc_time_since_last_played
+
+
+class MinesweeperAchievementTestCase(MinesweeperModelTestCase):
+    """ Test minesweeper achievement model class """
+
+    def test_new_achievement(self):
+        """ Test addition of new achievement """
+
+        achievement = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = 'For testing only',
+            color = 'rgb(0, 0, 0)'
+        )
+
+        db.session.add(achievement)
+        db.session.commit()
+
+        achievement_db = MinesweeperAchievement.query.get(achievement.id)
+
+        self.assertEqual(achievement, achievement_db)
+
+        self.assertEqual(achievement_db.title, 'Test Achievement')
+        self.assertEqual(achievement_db.description, 'For testing only')
+        self.assertEqual(achievement_db.color, 'rgb(0, 0, 0)')
+
+        self.assertEqual(len(achievement_db.users), 0)
+
+
+    def test_invalid_new_achievement(self):
+        """ Test invalid addition of new achievement """
+
+        # No title
+        achievement_no_title = MinesweeperAchievement(
+            title = None,
+            description = 'For testing only',
+            color = 'rgb(0, 0, 0)'
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(achievement_no_title)
+            db.session.commit()
+
+        db.session.rollback()
+
+        # No description
+        achievement_no_description = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = None,
+            color = 'rgb(0, 0, 0)'
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(achievement_no_description)
+            db.session.commit()
+
+        db.session.rollback()
+
+        # No color
+        achievement_no_color = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = 'For testing only',
+            color = None
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.add(achievement_no_color)
+            db.session.commit()
+
+        db.session.rollback()
+
+
+    def test_achievement_user_relationship(self):
+        """ Test relationship between minesweeper achievement and user """
+
+        achievement = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = 'For testing only',
+            color = 'rgb(0, 0, 0)'
+        )
+
+        db.session.add(achievement)
+        db.session.commit()
+
+        u1 = User.query.get(self.u1_id)
+
+        u1.minesweeper_achievements.append(achievement)
+
+        self.assertEqual(UserMinesweeperAchievement.query.count(), 1)
+        self.assertIn(achievement, u1.minesweeper_achievements)
+        self.assertIn(u1, achievement.users)
+
+
+    def test_user_deletion_cascades_to_achievements(self):
+        """ Test that user deletion cascades to achievements """
+
+        achievement = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = 'For testing only',
+            color = 'rgb(0, 0, 0)'
+        )
+
+        db.session.add(achievement)
+        db.session.commit()
+
+        u1 = User.query.get(self.u1_id)
+
+        u1.minesweeper_achievements.append(achievement)
+
+        self.assertEqual(UserMinesweeperAchievement.query.count(), 1)
+        self.assertEqual(MinesweeperAchievement.query.count(), 1)
+
+        User.query.filter_by(id = self.u1_id).delete()
+
+        self.assertEqual(UserMinesweeperAchievement.query.count(), 0)
+        self.assertEqual(MinesweeperStat.query.count(), 0)
+
+
+    def test_serialize(self):
+        """ Test serialize instance method """
+
+        achievement = MinesweeperAchievement(
+            title = 'Test Achievement',
+            description = 'For testing only',
+            color = 'rgb(0, 0, 0)'
+        )
+
+        db.session.add(achievement)
+        db.session.commit()
+
+        achievement_db = MinesweeperAchievement.query.get(achievement.id)
+
+        serialized = achievement_db.serialize()
+
+        self.assertEqual(serialized,
+            {
+                'title': 'Test Achievement',
+                'description': 'For testing only',
+                'color': 'rgb(0, 0, 0)',
+            }
+        )

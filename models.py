@@ -293,7 +293,7 @@ class MinesweeperStat(db.Model):
 
     def calc_time_since_last_played(self):
         """ Calculate time since last played and return in format
-        __d __m __s """
+        __D __H __M """
 
         time_in_s = round((datetime.utcnow() - self.last_played_at).total_seconds())
 
@@ -314,7 +314,7 @@ class MinesweeperStat(db.Model):
 
     @property
     def time_played_formatted(self):
-        """ Format time played as __h __m __s """
+        """ Format time played as __H __M __S """
 
         formatted_time = ''
 
