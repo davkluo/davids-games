@@ -19,7 +19,7 @@ from flask_login import (
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
 
 from app import (
-    app, login_manager
+    app
 )
 
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -137,382 +137,254 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
             self.assertFalse(current_user.is_authenticated)
 
 
-# class UserInfoViewTestCase(UserBaseViewTestCase):
-#     """ Tests for viewing user info """
+class UserSignupTestCase(UserBaseViewTestCase):
+    """ Test user signup """
 
-#     def test_users_listing(self):
-#         """ Test GET /users route with login """
+    def test_signup_page(self):
+        """ Test GET to /signup """
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+        with self.client as c:
+            resp = c.get("/signup")
+            html = resp.get_data(as_text=True)
 
-#             resp = c.get('/users')
-#             html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('CREATE AN ACCOUNT', html)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Here is the user listing page', html)
 
-#     def test_users_listing_w_query(self):
-#         """ Test GET /users route with query string with login """
+    def test_signup_submission(self):
+        """ Test POST to /signup """
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+        with self.client as c:
+            d = {
+                "username": "user2",
+                "password": "password",
+                "email": "user2@email.com",
+                "display_name": "user2"
+            }
 
-#             resp = c.get('/users?q=u1')
-#             html = resp.get_data(as_text=True)
+            resp = c.post("/signup", data=d, follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Here is the user listing page', html)
-#             self.assertNotIn('u2', html)
+            u2 = User.query.filter_by(username = "user2").one()
 
-#     def test_users_listing_wo_auth(self):
-#         """ Test accessing /users route without authorization """
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue(current_user.is_authenticated)
+            self.assertIn('game-thumbnail-list', html)
 
-#         with self.client as c:
 
-#             resp = c.get("/users", follow_redirects=True)
+    def test_invalid_signup_submission(self):
+        """ Test POST to /signup with repeat username """
 
-#             html = resp.get_data(as_text=True)
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+                "email": "user1@email.com",
+                "display_name": "user1"
+            }
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>Sign up now to get your own personalized timeline!</p>', html)
-#             self.assertIn("Access unauthorized.", html)
+            resp = c.post('/signup', data=d, follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-#     def test_user_profile(self):
-#         """ Test user profile page with login """
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Username already taken.', html)
+            self.assertIn('Display name already taken.', html)
+            self.assertIn('E-mail already taken.', html)
+            self.assertIn('CREATE AN ACCOUNT', html)
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
 
-#             resp = c.get(f'/users/{self.u2_id}')
-#             html = resp.get_data(as_text=True)
+class UserInfoViewTestCase(UserBaseViewTestCase):
+    """ Tests for viewing user info """
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Here is the user profile page', html)
-#             self.assertIn('<h4 id="sidebar-username">@u2</h4>', html)
+    def test_users_listing(self):
+        """ Test GET /users route with login """
 
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-# class UserFollowViewTestCase(UserBaseViewTestCase):
-#     """ Tests for viewing user follows """
+            resp = c.get('/users')
+            html = resp.get_data(as_text=True)
 
-#     def test_user_following_page(self):
-#         """ Test GET /users/<user_id>/following """
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('user-index', html)
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
 
-#             u1 = User.query.get(self.u1_id)
-#             u2 = User.query.get(self.u2_id)
+    def test_users_listing_w_query(self):
+        """ Test GET /users route with query string with login """
 
-#             u2.following.append(u1)
-#             db.session.commit()
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#             resp = c.get(f'/users/{self.u2_id}/following')
-#             html = resp.get_data(as_text=True)
+            resp = c.get('/users?q=user1')
+            html = resp.get_data(as_text=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>@u1</p>', html)
-#             self.assertIn('Here is the following page', html)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('user-index', html)
+            self.assertIn('user1', html)
 
-#     def test_user_following_page_wo_auth(self):
-#         """ Test accessing /users/<user_id>/following route without authorization """
 
-#         with self.client as c:
+    # TODO: Figure out how to test login_required of flask-login
+    # def test_users_listing_wo_auth(self):
+    #     """ Test accessing /users route without authorization """
 
-#             resp = c.get(f'/users/{self.u2_id}/following', follow_redirects=True)
+    #     with self.client as c:
+    #         resp = c.get('/users')
+    #         html = resp.get_data(as_text=True)
+    #         self.assertEqual(resp.status_code, 200)
+    #         self.assertIn('WELCOME BACK', html)
+    #         self.assertIn('Please log in to view this page.', html)
 
-#             html = resp.get_data(as_text=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>Sign up now to get your own personalized timeline!</p>', html)
-#             self.assertIn("Access unauthorized.", html)
+    def test_user_profile(self):
+        """ Test user profile page with login """
 
-#     def test_user_followers_page(self):
-#         """ Test GET /users/<user_id>/followers """
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+            resp = c.get(f'/users/{self.u1_id}')
+            html = resp.get_data(as_text=True)
 
-#             u1 = User.query.get(self.u1_id)
-#             u2 = User.query.get(self.u2_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('user-profile', html)
+            self.assertIn('user1', html)
 
-#             u1.following.append(u2)
-#             db.session.commit()
 
-#             resp = c.get(f'/users/{self.u2_id}/followers')
-#             html = resp.get_data(as_text=True)
+class UserUpdateViewTestCase(UserBaseViewTestCase):
+    """ Tests for updating a user """
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>@u1</p>', html)
-#             self.assertIn('Here is the followers page', html)
+    def test_update_user_form(self):
+        """ Test display of user update form """
 
-#     def test_user_followers_page_wo_auth(self):
-#         """ Test accessing /users/<user_id>/followers route without authorization """
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#         with self.client as c:
+            resp = c.get(f'/users/{self.u1_id}/edit')
+            html = resp.get_data(as_text=True)
 
-#             resp = c.get(f'/users/{self.u2_id}/followers', follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('EDIT PROFILE', html)
+            self.assertIn('user-form', html)
 
-#             html = resp.get_data(as_text=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>Sign up now to get your own personalized timeline!</p>', html)
-#             self.assertIn("Access unauthorized.", html)
+    def test_update_user_form_submit(self):
+        """ Test submission of user update form """
 
-#     def test_follow_user_post(self):
-#         """ Test POST route to follow a user """
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+            d={
+                "image_url": DEFAULT_USER_IMAGE_URL,
+                "bio": 'what bio',
+            }
+            resp = c.post(f'/users/{self.u1_id}/edit', data=d, follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-#             resp = c.post(f'/users/follow/{self.u2_id}', follow_redirects=True)
-#             html = resp.get_data(as_text=True)
+            u1 = User.query.get(self.u1_id)
 
-#             u1 = User.query.get(self.u1_id)
-#             u2 = User.query.get(self.u2_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('user-profile', html)
+            self.assertIn('what bio', html)
+            self.assertEqual(u1.bio, 'what bio')
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>@u2</p>', html)
-#             self.assertIn('Here is the following page', html)
-#             self.assertIn(u1, u2.followers)
 
-#     def test_unfollow_user_post(self):
-#         """ Test POST route to unfollow a user """
+    # TODO: Test login_required with flask-login
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
 
-#             u1 = User.query.get(self.u1_id)
-#             u2 = User.query.get(self.u2_id)
+class UserDeleteViewTestCase(UserBaseViewTestCase):
+    """ Tests for deleting a user """
 
-#             u2.followers.append(u1)
-#             db.session.commit()
+    def test_user_delete(self):
+        """ Test POST to /users/delete route """
 
-#             resp = c.post(f'/users/stop-following/{self.u2_id}', follow_redirects=True)
-#             html = resp.get_data(as_text=True)
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertNotIn('<p>@u2</p>', html)
-#             self.assertIn('Here is the following page', html)
-#             self.assertNotIn(u1, u2.followers)
+            resp = c.post(f'/users/{self.u1_id}/delete', follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-# class UserUpdateViewTestCase(UserBaseViewTestCase):
-#     """ Tests for updating a user """
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('CREATE AN ACCOUNT', html)
+            self.assertIn('User successfully deleted. See you again!', html)
+            self.assertIsNone(User.query.get(self.u1_id))
 
-#     def test_update_user_form(self):
-#         """ Test display of user update form """
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+    # TODO: Make the below test work with flask-login
+    # def test_user_delete_wo_auth(self):
+    #     """ Test POST to /users/delete route without authentication """
 
-#             resp = c.get('/users/profile')
-#             html = resp.get_data(as_text=True)
+    #     with self.client as c:
+    #         resp = c.post('/users/delete', follow_redirects=True)
+    #         html = resp.get_data(as_text=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<h2 class="join-message">Edit Your Profile.</h2>', html)
-#             self.assertIn(
-#                 '<input class="form-control" id="username" name="username" placeholder="Username" required type="text" value="u1">',
-#                 html
-#             )
+    #         self.assertEqual(resp.status_code, 200)
+    #         self.assertIn('CREATE AN ACCOUNT', html)
+    #         self.assertIn('Unauthorized access.', html)
 
-#     def test_update_user_form_submit(self):
-#         """ Test submission of user update form """
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
+class UserLogoutViewTestCase(UserBaseViewTestCase):
+    """ Tests for logging out a user """
 
-#             d={
-#                 "username": 'u1',
-#                 "email": 'u1new@email.com',
-#                 "image_url": DEFAULT_IMAGE_URL,
-#                 "header_image_url": DEFAULT_HEADER_IMAGE_URL,
-#                 "bio": 'what bio',
-#                 "location": 'Hawaii',
-#                 "password": "password"
-#             }
-#             resp = c.post('/users/profile', data=d, follow_redirects=True)
-#             html = resp.get_data(as_text=True)
+    def test_user_logout(self):
+        """ Test POST to /logout """
 
-#             u1 = User.query.get(self.u1_id)
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Here is the user profile page', html)
-#             self.assertIn('Hawaii', html)
-#             self.assertIn('what bio', html)
-#             self.assertEqual(u1.location, 'Hawaii')
-#             self.assertEqual(u1.bio, 'what bio')
-#             self.assertEqual(u1.email, 'u1new@email.com')
-#             self.assertEqual(u1.username, 'u1')
+            resp = c.post('/logout', follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-# class UserDeleteViewTestCase(UserBaseViewTestCase):
-#     """ Tests for deleting a user """
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Logged out successfully.', html)
+            self.assertIn('WELCOME BACK', html)
+            self.assertIn('user-form', html)
+            self.assertFalse(current_user.is_authenticated)
 
-#     def test_user_delete(self):
-#         """ Test POST to /users/delete route """
+    # TODO: Test login_required with flask-login
 
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
 
-#             resp = c.post('/users/delete', follow_redirects=True)
-#             html = resp.get_data(as_text=True)
+class UserHomepageViewTestCase(UserBaseViewTestCase):
+    """ Tests for home page """
 
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<h2 class="join-message">Join Warbler today.</h2>', html)
-#             self.assertIn("User successfully deleted :(", html)
-#             self.assertIsNone(User.query.get(self.u1_id))
+    def test_user_homepage(self):
+        """ Test homepage for logged in user """
 
-#     def test_user_delete_wo_auth(self):
-#         """ Test POST to /users/delete route without authentication """
+        with self.client as c:
+            d = {
+                "username": "user1",
+                "password": "password",
+            }
+            c.post('/login', data=d, follow_redirects=True)
 
-#         with self.client as c:
+            resp = c.get('/', follow_redirects=True)
+            html = resp.get_data(as_text=True)
 
-#             resp = c.post('/users/delete', follow_redirects=True)
-
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<p>Sign up now to get your own personalized timeline!</p>', html)
-#             self.assertIn("Access unauthorized.", html)
-
-# class UserLikesListTestCase(UserBaseViewTestCase):
-#     """ Tests for listing a user's likes """
-
-#     def test_user_likes_page(self):
-#         """ Test GET to /users/<int:user_id>/likes """
-
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
-
-#             m1 = Message.query.get(self.m1_id)
-#             u1 = User.query.get(self.u1_id)
-#             u1.liked_messages.append(m1)
-#             db.session.commit()
-
-#             resp = c.get(f"/users/{self.u1_id}/likes")
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('m1-text', html)
-
-# class UserSignupTestCase(UserBaseViewTestCase):
-#     """ Tests for when a user attempts to signup or visit the signup page """
-
-#     def test_signup_page(self):
-#         """ Test GET to /signup """
-
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
-
-#             resp = c.get("/signup")
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('<h2 class="join-message">Join Warbler today.</h2>', html)
-#             self.assertNotIn(CURR_USER_KEY, session)
-
-#     def test_signup_submission(self):
-#         """ Test POST to /signup """
-
-#         with self.client as c:
-
-#             d = {
-#                 "username": "test_4",
-#                 "password": "password",
-#                 "email": "test_4@email.com",
-#                 "image_url": ""
-#             }
-
-#             resp = c.post("/signup", data=d, follow_redirects=True)
-#             html = resp.get_data(as_text=True)
-
-#             u4 = User.query.filter_by(username = "test_4").one()
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertEqual(session[CURR_USER_KEY], u4.id)
-#             self.assertIn('<p>@test_4</p>', html)
-
-#     def test_signup_submission_repeat_name(self):
-#         """ Test POST to /signup with repeat username """
-
-#         with self.client as c:
-
-#             d = {
-#                 "username": "u1",
-#                 "password": "password",
-#                 "email": "test_4@email.com",
-#                 "image_url": ""
-#             }
-
-#             resp = c.post('/signup', data=d, follow_redirects=True)
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Username already taken', html)
-#             self.assertIn('<h2 class="join-message">Join Warbler today.</h2>', html)
-#             self.assertNotIn(CURR_USER_KEY, session)
-
-
-
-
-# class UserLogoutViewTestCase(UserBaseViewTestCase):
-#     """ Tests for logging out a user """
-
-#     def test_user_logout(self):
-#         """ Test POST to /logout """
-
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
-
-#             resp = c.post('/logout', follow_redirects=True)
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('You have been succesfully logged out!', html)
-#             self.assertIn('<h2 class="join-message">Welcome back.</h2>', html)
-#             self.assertIn('<form method="POST" id="user_form">', html)
-#             self.assertNotIn(CURR_USER_KEY, session)
-
-
-# class UserHomepageViewTestCase(UserBaseViewTestCase):
-#     """ Tests for home page """
-
-#     def test_user_homepage(self):
-#         """ Test homepage for logged in user """
-
-#         with self.client as c:
-#             with c.session_transaction() as sess:
-#                 sess[CURR_USER_KEY] = self.u1_id
-
-#             resp = c.get('/')
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn('Here is the home page', html)
-#             self.assertIn('<p>@u1</p>', html)
-
-
-#     def test_user_homepage_logged_out(self):
-#         """ Test homepage for logged out user """
-
-#         with self.client as c:
-#             resp = c.get('/')
-#             html = resp.get_data(as_text=True)
-
-#             self.assertEqual(resp.status_code, 200)
-#             self.assertIn(
-#                 '<p>Sign up now to get your own personalized timeline!</p>',
-#                 html
-#             )
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('game-thumbnail-list', html)

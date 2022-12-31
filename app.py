@@ -38,7 +38,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
@@ -66,6 +66,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in to view this page.'
 login_manager.login_message_category = 'danger'
 
 @login_manager.user_loader
@@ -393,4 +394,5 @@ def page_not_found(e):
 
 #TODO:
 # Restructure using flask blueprints
-# Testing
+# Testing with flask-login
+# Testing 404 route
