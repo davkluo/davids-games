@@ -2,12 +2,10 @@
 /* Refactor to be more DRY */
 /* Utilize CSS custom variables */
 
-/* * {
-    font-family: inherit;
-} */
+/* ###### GENERAL ###### */
 
-body {
-    font-family: 'Alexandria', sans-serif;
+* {
+    box-sizing: border-box;
 }
 
 :root {
@@ -18,15 +16,15 @@ body {
     visibility: hidden;
 }
 
-* {
-    box-sizing: border-box;
-}
-
 body {
+    font-family: 'Alexandria', sans-serif;
     position: relative;
     background-color: rgb(5, 1, 10);
     z-index: -1;
 }
+
+
+/* ###### FLASH MESSAGE TOASTS ###### */
 
 .toast-container {
     position: fixed;
@@ -45,58 +43,8 @@ body {
     font-size: .7rem;
 }
 
-#user-index {
-    gap: 1rem;
-}
 
-.user-index-card {
-    width: 60%;
-    min-width: 20rem;
-    height: 6rem;
-    background-color: rgb(23, 23, 35);
-    border-radius: 1rem;
-}
-
-.user-index-link {
-    width: 100%;
-    color: white;
-    text-decoration: none;
-}
-
-.user-index-link:hover img {
-    box-shadow: 0 0 .5rem 0.1rem rgb(205, 255, 210);
-}
-
-.user-index-link:hover {
-    color: white;
-}
-
-.user-index-link p {
-    margin: 0;
-    height: auto;
-}
-
-.user-index-card img {
-    height: 3.5rem;
-    width: 3.5rem;
-    border-radius: 100%;
-    transition: box-shadow .25s;
-}
-
-.user-card-title {
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-.user-card-text {
-    font-size: .7rem;
-}
-
-.no-user-msg {
-    font-weight: bold;
-    color: white;
-    text-align: center;
-}
+/* ###### NAV BAR ###### */
 
 nav {
     background-color: rgb(5, 1, 10);
@@ -244,6 +192,65 @@ transition: box-shadow .25s;
     100% { transform: rotate(0deg); }
 }
 
+
+/* ###### USER INDEX PAGE ###### */
+
+#user-index {
+    gap: 1rem;
+}
+
+.user-index-card {
+    width: 60%;
+    min-width: 20rem;
+    height: 6rem;
+    background-color: rgb(23, 23, 35);
+    border-radius: 1rem;
+}
+
+.user-index-link {
+    width: 100%;
+    color: white;
+    text-decoration: none;
+}
+
+.user-index-link:hover img {
+    box-shadow: 0 0 .5rem 0.1rem rgb(205, 255, 210);
+}
+
+.user-index-link:hover {
+    color: white;
+}
+
+.user-index-link p {
+    margin: 0;
+    height: auto;
+}
+
+.user-index-card img {
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 100%;
+    transition: box-shadow .25s;
+}
+
+.user-card-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.user-card-text {
+    font-size: .7rem;
+}
+
+.no-user-msg {
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+
+/* ###### SIGNUP AND LOGIN PAGES ###### */
+
 .join-message {
     font-weight: bold;
     color: white;
@@ -293,6 +300,9 @@ transition: box-shadow .25s;
     border-color: rgb(205, 255, 210);
 }
 
+
+/* ###### GAMES PAGE ###### */
+
 #game-thumbnail-list {
     gap: 2rem;
 }
@@ -337,89 +347,7 @@ transition: box-shadow .25s;
 }
 
 
-#profile-games-accordion {
-    width: 100%;
-    min-width: 20rem;
-}
-
-#profile-games-accordion .accordion-button{
-    background-color: rgb(23, 23, 35);
-    display: flex;
-    align-items: baseline;
-    width: 100%;
-    gap: 2rem;
-    color: white;
-}
-
-#profile-games-accordion .accordion-button .game-title {
-    font-weight: bold;
-}
-
-#profile-games-accordion .accordion-button .time-since-played {
-    font-size: .7rem;
-    color: rgb(255, 255, 255, .5)
-}
-
-#profile-games-accordion .accordion-item {
-    background-color: rgb(23, 23, 35);
-}
-
-#profile-games-accordion .accordion-body {
-}
-
-#profile-games-accordion .accordion-button:not(.collapsed) {
-    color: white;
-    border-bottom: .1rem solid rgb(255, 255, 255, .75);
-}
-
-#profile-games-accordion .accordion-button:focus {
-    color: rgb(255, 205, 250);
-    box-shadow: none;
-}
-
-#profile-games-accordion .accordion-button:hover {
-    color: rgb(255, 205, 250);
-}
-
-.user-game-detail {
-    display: flex;
-    gap: 1.5rem;
-    font-size: .9rem;
-}
-
-.minesweeper-achievement-container::-webkit-scrollbar,
-.minesweeper-stat-container::-webkit-scrollbar {
-    width: 0;
-}
-
-.minesweeper-achievement-container,
-.minesweeper-stat-container {
-    display: flex;
-    justify-content: start;
-    gap: 1.5rem;
-    color: white;
-    width: 100%;
-    overflow-x: scroll;
-}
-
-.minesweeper-stat-container .game-stat {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: .5rem;
-    cursor: default;
-    white-space: nowrap;
-}
-
-.minesweeper-stat-container .game-stat:hover {
-    color: rgb(255, 205, 250);
-}
-
-.achievement-header,
-.stat-header {
-    width: 11rem;
-    color: white;
-}
+/* ###### USER PROFILE ###### */
 
 #user-profile #user-profile-image {
     width: 6rem;
@@ -483,4 +411,91 @@ transition: box-shadow .25s;
 #user-image-wrapper:hover button,
 #user-image-wrapper:hover a {
     visibility: visible;
+}
+
+
+/* ###### USER PROFILE GAME INFO ###### */
+
+#profile-games-accordion {
+    width: 100%;
+    min-width: 20rem;
+}
+
+#profile-games-accordion .accordion-button{
+    background-color: rgb(23, 23, 35);
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    gap: 2rem;
+    color: white;
+}
+
+#profile-games-accordion .accordion-button .game-title {
+    font-weight: bold;
+}
+
+#profile-games-accordion .accordion-button .time-since-played {
+    font-size: .7rem;
+    color: rgb(255, 255, 255, .5)
+}
+
+#profile-games-accordion .accordion-item {
+    background-color: rgb(23, 23, 35);
+}
+
+#profile-games-accordion .accordion-button:not(.collapsed) {
+    color: white;
+    border-bottom: .1rem solid rgb(255, 255, 255, .75);
+}
+
+#profile-games-accordion .accordion-button:focus {
+    color: rgb(255, 205, 250);
+    box-shadow: none;
+}
+
+#profile-games-accordion .accordion-button:hover {
+    color: rgb(255, 205, 250);
+}
+
+.user-game-detail {
+    display: flex;
+    gap: 1.5rem;
+    font-size: .9rem;
+}
+
+
+/* ###### USER PROFILE MINESWEEPER INFO ###### */
+
+.minesweeper-achievement-container::-webkit-scrollbar,
+.minesweeper-stat-container::-webkit-scrollbar {
+    width: 0;
+}
+
+.minesweeper-achievement-container,
+.minesweeper-stat-container {
+    display: flex;
+    justify-content: start;
+    gap: 1.5rem;
+    color: white;
+    width: 100%;
+    overflow-x: scroll;
+}
+
+.minesweeper-stat-container .game-stat {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: .5rem;
+    cursor: default;
+    white-space: nowrap;
+}
+
+.minesweeper-stat-container .game-stat:hover {
+    color: rgb(255, 205, 250);
+}
+
+.achievement-header,
+.stat-header {
+    width: 11rem;
+    color: white;
 }

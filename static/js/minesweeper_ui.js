@@ -54,6 +54,8 @@ const $toastContainer = $('.toast-container');
 let levelIndex = 0;
 let game;
 
+
+/** Create game board */
 function generateBoardHtml(rows, cols) {
   $gameBoard.empty();
   $gameBoard.css("grid-template-columns", `repeat(${cols}, 1fr)`);
@@ -67,12 +69,16 @@ function generateBoardHtml(rows, cols) {
   $('#suspend-screen').hide();
 }
 
+
+/** Show game suspend screen */
 function showSuspendScreen(content) {
   const $suspendScreen = $('#suspend-screen');
   $suspendScreen.html(content)
   $('#suspend-screen').show();
 }
 
+
+/** Update level buttons depending on current difficulty */
 function updateLevelButtons() {
   $decLevelBtn.removeClass('visibility-hidden');
   $incLevelBtn.removeClass('visibility-hidden');
@@ -84,10 +90,13 @@ function updateLevelButtons() {
   }
 }
 
+
+/** Load default game difficulty */
 function loadDefaultDifficulty() {
   $gameLevelSetting.html(DEFAULT_DIFFICULTY);
   updateLevelButtons();
 }
+
 
 /** Grab game level setting */
 function getGameConfigs() {
@@ -100,6 +109,7 @@ function getGameConfigs() {
   };
 }
 
+
 /** Create HTML board and data board in game class */
 function createBoard() {
   const { rows, cols, mines } = getGameConfigs();
@@ -107,6 +117,8 @@ function createBoard() {
   game = new Game(rows, cols, mines);
 }
 
+
+/** Clear timer from previous game */
 function resetPrevGame() {
   if (game) {
     game.stopTimer();
@@ -114,6 +126,8 @@ function resetPrevGame() {
   }
 }
 
+
+/** Start minesweeper game */
 function startGame(evt) {
   console.debug('startGame', evt);
 
@@ -131,6 +145,8 @@ function startGame(evt) {
   $startScreen.hide();
 }
 
+
+/** Reveal cell and show either its value or a bomb icon */
 function revealCellHtml(cell) {
   const cellHtml = (cell.status.mine) ? BOMB_ICON_HTML : cell.val || '';
   cell.$cell.html(cellHtml);
@@ -143,25 +159,31 @@ function revealCellHtml(cell) {
   }
 }
 
+
+/** Update flag icon on a cell */
 function updateCellFlag(cell) {
   const cellHtml = (cell.status.flag) ? FLAG_ICON_HTML : '';
   cell.$cell.html(cellHtml);
   cell.$cell.toggleClass('flagged');
 }
 
+
+/** Update timer display */
 function updateTimerDisplay(timeInSeconds) {
   $timerDisplay.html(convertSecondsForDisplay(timeInSeconds));
 }
 
+
+/** Update mine count display */
 function updateMineCount(numMinesLeft) {
   $mineCountDisplay.html(numMinesLeft.toString().padStart(2, '0'));
 }
 
+
+/** Event handler for cell click */
 function handleClick(evt) {
   console.debug('handleClick', evt);
-  const $clickedCell = ($(evt.target).hasClass('game-cell'))
-    ? $(evt.target)
-    : $(evt.target).closest('.game-cell');
+  const $clickedCell = $(evt.target).closest('.game-cell');
   const clickedCellId = $clickedCell.attr('id');
   const clickedCell = game.cells[clickedCellId];
 
@@ -184,6 +206,8 @@ function handleClick(evt) {
   }
 }
 
+
+/** Event handler for cell right click */
 function handleRightClick(evt) {
   console.debug('handleRightClick', evt);
   evt.preventDefault();
@@ -192,14 +216,14 @@ function handleRightClick(evt) {
     return;
   }
 
-  const $clickedCell = ($(evt.target).hasClass('game-cell'))
-    ? $(evt.target)
-    : $(evt.target).closest('.game-cell');
+  const $clickedCell = $(evt.target).closest('.game-cell');
   const clickedCellId = $clickedCell.attr('id');
 
   game.toggleFlag(game.cells[clickedCellId]);
 }
 
+
+/** Update action to perform when user clicks based on setting */
 function updateClickAction(evt) {
   console.debug('updateClickAction', evt);
   if ($clickActionToggle.hasClass('flag-mode')) {
@@ -209,6 +233,8 @@ function updateClickAction(evt) {
   }
 }
 
+
+/** Toggle setting for click action */
 function toggleClickAction(evt) {
   console.debug('toggleClickAction', evt);
 
@@ -218,6 +244,8 @@ function toggleClickAction(evt) {
   }
 }
 
+
+/** Decrease game difficulty level */
 function decreaseLevel(evt) {
   console.debug('decreaseLevel', evt);
   levelIndex = Math.max(0, levelIndex - 1);
@@ -225,6 +253,8 @@ function decreaseLevel(evt) {
   updateLevelButtons();
 }
 
+
+/** Increase game difficulty level */
 function increaseLevel(evt) {
   console.debug('increaseLevel', evt);
   levelIndex = Math.min(levelIndex + 1, Object.keys(DIFFICULTY_LEVELS).length - 1);
@@ -232,6 +262,8 @@ function increaseLevel(evt) {
   updateLevelButtons();
 }
 
+
+/** Pause game */
 function pauseGame(evt) {
   if (game.gameOver || !game.gameStarted) {
     return;
@@ -248,6 +280,8 @@ function pauseGame(evt) {
   }
 }
 
+
+/** Return to home screen */
 function goHome(evt) {
   game.stopTimer();
   game = null;
@@ -255,6 +289,8 @@ function goHome(evt) {
   $gameScreen.hide();
 }
 
+
+/** Convert input in seconds to MM:SS format */
 function convertSecondsForDisplay(timeInSeconds) {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = timeInSeconds % 60;
@@ -264,11 +300,15 @@ function convertSecondsForDisplay(timeInSeconds) {
   return `${minutesDisplay}:${secondsDisplay}`;
 }
 
+
+/** Convert UTC date string to YYYY/MM/DD format */
 function convertUTCToYYYYMMDD(dateInUTC) {
   const date = new Date(dateInUTC);
   return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
 }
 
+
+/** Display achievement in toast container */
 function displayAchievement(achievement) {
   $toastContainer.append(
     `<div class="toast align-items-center text-light bg-dark border-0" data-bs-animation='true' data-bs-delay="10000" data-bs-autohide="true" role="alert" aria-live="assertive" aria-atomic="true">
@@ -286,11 +326,15 @@ function displayAchievement(achievement) {
   )
 }
 
+
+/** Initialize and show all toasts */
 function initializeAndShowToasts() {
   $('.toast').toast();
   $('.toast').toast('show');
 }
 
+
+/** Creates markup for entry on game leaderboard */
 function generateLeaderboardListItem(score, rank) {
   let $listItem = $('<li>');
   if (score) {
@@ -325,6 +369,8 @@ function generateLeaderboardListItem(score, rank) {
   return $listItem;
 }
 
+
+/** Get scores to display on leaderboard */
 async function fillLeaderboard() {
   const response = await axios.get(
     `${DAVIDS_GAMES_BASE_API_URL}/api/minesweeper/scores`
@@ -342,6 +388,8 @@ async function fillLeaderboard() {
   }
 }
 
+
+/** Show and hide leaderboard */
 function toggleLeaderboard(evt) {
   if ($leaderboardScreen.is(':hidden')) {
     fillLeaderboard();
@@ -365,60 +413,3 @@ $gameBoard.on('contextmenu', '.game-cell', handleRightClick);
 $clickActionToggle.on('click', toggleClickAction);
 $(document).on('keydown', toggleClickAction);
 $leaderboardBtn.on('click', toggleLeaderboard);
-
-
-/*
-
-GAME PLAN
-
-Minesweeper game with the following features:
-Color theme selector
-Difficulty selection/custom size input
-Timer for recording high score
-Show number of safe cells and mine cells left
-Start/pause game/new game
-Tips/tutorial?
-Save custom board size in localstorage
-Can use a radio button group for the reveal/flag click
-
-DONE- Choose default click to be reveal, flag
-DONE- Right click for flag
-DONE- Click on revealed with correct number of flags around it for auto-reveal of rest
-DONE- First click always a 0, and you shouldn't be able to flag mark on first click
-DONE- 0 values always propagate out to the next non-zero value
-DONE- keyboard shortcuts for switching click action
-
-Program flow:
-
-- User chooses difficulty/size starts game
-DONE- Data board is generated with mine positions and number values
-DONE- HTML board is generated with correct number of cells
-DONE- HTML cell is correlated with data board via its HTML id
-DONE- When the first click happens, take the clicked cell and all of its neighbours
-  DONE- For any mines within these cells, move them elsewhere and update their cell values
-DONE- When a subsequent click happens, determine what kind of click it was based on the configs and left/right click
-  DONE- Determine which cell was clicked
-  DONE- If it is a mine, end the game
-  DONE- If it is not a mine, reveal the cell value
-    DONE- If the cell value was a 0, propagate the reveal out until it is non-zero
-  DONE- If it is a revealed cell, check if there are enough flags around it
-
-* Animations where appropriate
-- HTML content populated all the time and hidden vs changing it on the go?
-
-Styling:
-- Spin button + input text design for the configurations
-- Show and hide settings menu
-- Play button should be a new game button instead
-- Pause and resume button should be the same button
-
-
-DONE- Look into refactoring some methods into Cell class
-DONE- Color cells depending on the value
-
-DONE- Reset click action on new game, or make sure its value is updated?
-disable switch before first click, but still allow its configuration to be saved?
-Click action switch can be switched before first click?
-
-error handling for rows/cols/mines input
-*/

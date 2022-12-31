@@ -29,6 +29,8 @@ const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5001'
  * generateBoardData
  * checkForWin
  * endGame
+ * sendScore
+ * sendGameStats
  * revealCells
  * toggleFlag
  * revealNeighbourCells
@@ -153,7 +155,12 @@ class Game {
     }
   }
 
-
+  /**
+   * endGame: End the game with a message and send scores/stats as necessary
+   * depending on whether the user won
+   *
+   * win: Boolean representing whether the user won
+   */
   endGame(win) {
     this.stopTimer();
     this.gameOver = true;
@@ -169,6 +176,9 @@ class Game {
   }
 
 
+  /**
+   * sendScore: Send game score to server API
+   */
   async sendScore() {
     const scoreData = {
       time: this.scoreTime,
@@ -182,6 +192,11 @@ class Game {
   }
 
 
+  /**
+   * sendGameStats: Send game stats to server API
+   *
+   * win: Boolean representing whether the user won
+   */
   async sendGameStats(win) {
     const gameData = {
       games_played: 1,
@@ -318,6 +333,10 @@ class Game {
     this.startTimer();
   }
 
+
+  /**
+   * startTimer: Start game timer by setting an interval
+   */
   startTimer() {
     this.startTime = Date.now() - this.scoreTime * MS_PER_SEC;
     this.scoreTimerId = setInterval(
@@ -326,6 +345,10 @@ class Game {
     );
   }
 
+
+  /**
+   * updateTimer: Check timer for 1 elapsed second and update timer display
+   */
   updateTimer() {
     const timeElapsed = Date.now() - this.startTime;
     const secondsElapsed = Math.floor(timeElapsed / 1000);
@@ -338,6 +361,10 @@ class Game {
     }
   }
 
+
+  /**
+   * stopTimer: Stop time by clearing interval
+   */
   stopTimer() {
     clearInterval(this.scoreTimerId);
     this.scoreTimerId = null;
