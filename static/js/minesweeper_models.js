@@ -4,7 +4,7 @@ const GAME_TIMER_UPDATE_INTERVAL_MS = 50;
 const MS_PER_SEC = 1000;
 const MAX_GAME_TIME_S = 59 * 60 + 59;
 
-const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5001'
+const DAVIDS_GAMES_BASE_API_URL = 'https://davids-games.onrender.com'
 
 /**
  * Game class for Minesweeper
