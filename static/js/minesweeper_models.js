@@ -219,7 +219,6 @@ class Game {
 
     for (let achievement of response.data.new_achievements) {
       displayAchievement(achievement);
-      console.log(achievement.title, achievement.description, achievement.color);
     }
 
     initializeAndShowToasts();
@@ -252,7 +251,9 @@ class Game {
       }
     }
 
-    this.checkForWin();
+    if (this.gameOver === false) {
+      this.checkForWin();
+    }
   }
 
   /**
