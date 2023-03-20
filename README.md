@@ -23,6 +23,14 @@ Built with Flask, Jinja, and PostgreSQL
 
 ## Screenshots
 
+<img width="1432" alt="Screen Shot 2023-03-20 at 10 49 11 AM" src="https://user-images.githubusercontent.com/108588437/226425675-45e55f7b-42a8-4bad-93cc-bddf5c62b7da.png">
+
+<img width="1430" alt="Screen Shot 2023-03-20 at 10 49 32 AM" src="https://user-images.githubusercontent.com/108588437/226425773-134a6e8c-3431-45e7-9549-6675db037ddc.png">
+
+<img width="1428" alt="Screen Shot 2023-03-20 at 10 49 59 AM" src="https://user-images.githubusercontent.com/108588437/226425933-efc3c931-e6ff-4cf9-83f0-e1d84ef9b64e.png">
+
+<img width="1429" alt="Screen Shot 2023-03-20 at 10 51 25 AM" src="https://user-images.githubusercontent.com/108588437/226426060-42451d11-be40-4585-bff4-a72241c9f6b0.png">
+
 ## Setup
 
 ### Clone the repo
