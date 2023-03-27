@@ -3,7 +3,7 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 
 ## Table of Contents
 
-- [Motivation] (#motivation)
+- [Motivation](#motivation)
 - [To-Do](#to-do)
 - [Tech Stack](#tech-stack)
 - [Screenshots](#screenshots)
