@@ -3,6 +3,7 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 
 ## Table of Contents
 
+- [Motivation] (#motivation)
 - [To-Do](#to-do)
 - [Tech Stack](#tech-stack)
 - [Screenshots](#screenshots)
@@ -12,6 +13,13 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 - [Project Structure](#project-structure)
 - [API](#api)
 
+## Motivation
+
+- To create a centralized location to play all of the games I have made
+- Track high scores and compete with other players
+- Accumulate achievements and other game statistics
+- Create games with features that I can not find elsewhere
+
 ## To-Do
 
 - Add more tests
@@ -19,6 +27,7 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 - Add more achievements to existing games
 
 ## Tech Stack
+
 Built with Flask, Jinja, and PostgreSQL
 
 ## Screenshots
