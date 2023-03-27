@@ -4,7 +4,6 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 ## Table of Contents
 
 - [Motivation](#motivation)
-- [To-Do](#to-do)
 - [Tech Stack](#tech-stack)
 - [Screenshots](#screenshots)
 - [Setup](#setup)
@@ -12,6 +11,7 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 - [Testing](#testing)
 - [Project Structure](#project-structure)
 - [API](#api)
+- [Future Improvements](#future-improvements)
 
 ## Motivation
 
@@ -19,12 +19,6 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 - Track high scores and compete with other players
 - Accumulate achievements and other game statistics
 - Create games with features that I can not find elsewhere
-
-## To-Do
-
-- Add more tests
-- Add more games
-- Add more achievements to existing games
 
 ## Tech Stack
 
@@ -167,3 +161,9 @@ List of available routes:
 `GET /api/minesweeper/scores` - gets JSON data of top 20 scores for each difficulty (login required)\
 `POST /api/minesweeper/scores` - submits minesweeper score to database
 `POST /api/minesweeper/stats` - submits minesweeper stats to database
+
+## Future Improvements
+
+- Add more tests
+- Add more games
+- Add more achievements to existing games
