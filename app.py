@@ -143,7 +143,8 @@ def login():
     """ Handle showing and submission of login form. """
 
     if current_user.is_authenticated:
-        logout_user()
+        flash('You are already logged in.', 'info')
+        return redirect(url_for('homepage'))
 
     form = LoginForm()
 
