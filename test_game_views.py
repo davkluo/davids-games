@@ -12,9 +12,9 @@ from models import (
 
 from flask import session
 
-from flask_login import (
-    LoginManager, login_user, logout_user, current_user, login_required
-)
+# from flask_login import (
+#     LoginManager, login_user, logout_user, current_user, login_required
+# )
 
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
 
