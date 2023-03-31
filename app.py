@@ -3,12 +3,12 @@ from dotenv import load_dotenv
 
 from flask import (
     Flask, render_template, flash, request, url_for, redirect, abort, g,
-    jsonify
+    jsonify, session
 )
 
-from flask_login import (
-    LoginManager, login_user, logout_user, current_user, login_required
-)
+# from flask_login import (
+#     LoginManager, login_user, logout_user, current_user, login_required
+# )
 
 from urllib.parse import (
     urlparse, urljoin
@@ -31,6 +31,8 @@ from minesweeper import (
 )
 
 load_dotenv()
+
+CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
@@ -62,19 +64,30 @@ def is_safe_url(target):
 
 ###### Flask-login setup ######
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
-login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to view this page.'
-login_manager.login_message_category = 'danger'
+# login_manager.login_view = 'login'
+# login_manager.login_message = 'Please log in to view this page.'
+# login_manager.login_message_category = 'danger'
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.query.get(user_id)
 
 
 ###### User signup/login/logout ######
+
+@app.before_request
+def add_user_to_g():
+    """ Add current user to Flask global if logged in """
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
 
 @app.before_request
 def add_csrf_only_form():
@@ -83,12 +96,25 @@ def add_csrf_only_form():
     g.csrf_form = CSRFProtection()
 
 
+def login_user(user):
+    """ Log in user """
+
+    session[CURR_USER_KEY] = user.id
+
+
+def logout_user():
+    """ Log out user """
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
+
 @app.route('/signup', methods = ['GET', 'POST'])
 def signup():
     """ Handle showing and submission of signup form. """
 
-    if current_user.is_authenticated:
-        logout_user()
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
 
     form = UserAddForm()
 
@@ -126,13 +152,10 @@ def signup():
                 .one_or_none()) is None
 
             if not is_unique_username:
-                # form.username.errors = ['Username already taken.']
                 flash('Username already taken.', 'danger')
             if not is_unique_display_name:
-                # form.display_name.errors = ['Display name already taken.']
                 flash('Display name already taken.', 'danger')
             if not is_unique_email:
-                # form.email.errors = ['E-mail already taken.']
                 flash('E-mail already taken.', 'danger')
 
     return render_template('users/signup.html', form=form)
@@ -141,10 +164,6 @@ def signup():
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     """ Handle showing and submission of login form. """
-
-    if current_user.is_authenticated:
-        flash('You are already logged in.', 'info')
-        return redirect(url_for('homepage'))
 
     form = LoginForm()
 
@@ -170,13 +189,12 @@ def login():
 
 
 @app.post('/logout')
-@login_required
 def logout():
     """ Handle logout of user and redirect to home page """
 
     form = g.csrf_form
 
-    if not form.validate_on_submit():
+    if not form.validate_on_submit() or not g.user:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('homepage'))
 
@@ -189,9 +207,12 @@ def logout():
 ###### General user routes ######
 
 @app.get('/users')
-@login_required
 def list_users():
     """ List all users, with an optional filter from the query string. """
+
+    if not g.user:
+        flash('Please log in to view this page.', 'danger')
+        return redirect(url_for('login', next=request.path))
 
     search = request.args.get('q')
 
@@ -207,9 +228,12 @@ def list_users():
 
 
 @app.get('/users/<int:user_id>')
-@login_required
 def show_user_profile(user_id):
     """ Show user profile page. """
+
+    if not g.user:
+        flash('Please log in to view this page.', 'danger')
+        return redirect(url_for('login', next=request.path))
 
     minesweeper_achievements = (db.session
         .query(MinesweeperAchievement)
@@ -230,20 +254,24 @@ def show_user_profile(user_id):
 
 
 @app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
-@login_required
 def edit_user(user_id):
     """ Show and handle submission of user edit form """
 
-    if current_user.id != user_id:
-        flash('Unauthorized access.', 'danger')
-        return render_template(url_for('homepage'))
+    if not g.user:
+        flash('Please log in to view this page.', 'danger')
+        return redirect(url_for('login'))
 
-    form = UserEditForm(obj=current_user)
+    if g.user.id != user_id:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('homepage'))
+
+    user = g.user
+    form = UserEditForm(obj=user)
 
     if form.validate_on_submit():
-        form.populate_obj(current_user)
+        form.populate_obj(user)
 
-        db.session.add(current_user)
+        db.session.add(user)
         db.session.commit()
 
         return redirect(url_for('show_user_profile', user_id = user_id))
@@ -252,23 +280,27 @@ def edit_user(user_id):
 
 
 @app.post('/users/<int:user_id>/delete')
-@login_required
 def delete_user(user_id):
     """Delete user.
 
     Redirect to signup page.
     """
 
-    if current_user.id != user_id:
+    if not g.user:
+        flash('Please log in to view this page.', 'danger')
+        return redirect(url_for('login'))
+
+    if g.user.id != user_id:
         flash('Unauthorized access.', 'danger')
+        return redirect(url_for('homepage'))
 
     form = g.csrf_form
 
     if form.validate_on_submit():
-        User.query.filter(User.id == current_user.id).delete()
-        db.session.commit()
-
         logout_user()
+
+        User.query.filter(User.id == g.user.id).delete()
+        db.session.commit()
 
         flash('User successfully deleted. See you again!', 'success')
         return redirect(url_for('signup'))
@@ -280,9 +312,12 @@ def delete_user(user_id):
 ###### Minesweeper game routes ######
 
 @app.get('/games/minesweeper')
-@login_required
 def show_minesweeper_game():
     """ Show minesweeper game to user """
+
+    if not g.user:
+        flash('Please log in to view this page.', 'danger')
+        return redirect(url_for('login', next=request.path))
 
     return render_template('minesweeper.html')
 
@@ -290,9 +325,11 @@ def show_minesweeper_game():
 ###### Minesweeper game API ######
 
 @app.get('/api/minesweeper/scores')
-@login_required
 def get_minesweeper_scores():
     """ Get minesweeper scores from database. Top 20 for each difficulty. """
+
+    if not g.user:
+        return jsonify(error="Please log in to access this endpoint."), 401
 
     scores = {}
 
@@ -304,14 +341,16 @@ def get_minesweeper_scores():
 
 
 @app.post('/api/minesweeper/scores')
-@login_required
 def submit_minesweeper_score():
     """ Submit minesweeper score to database.
     Expects JSON format data with fields for time and level.
     """
 
+    if not g.user:
+        return jsonify(error="Please log in to access this endpoint."), 401
+
     new_score = MinesweeperScore(
-        user_id = current_user.id,
+        user_id = g.user.id,
         time = request.json['time'],
         level = request.json['level']
     )
@@ -324,17 +363,19 @@ def submit_minesweeper_score():
 
 
 @app.post('/api/minesweeper/stats')
-@login_required
 def submit_minesweeper_stats():
     """ Submit minesweeper stats to database.
     Calculates achievements and sends back in JSON response.
     """
+
+    if not g.user:
+        return jsonify(error="Please log in to access this endpoint."), 401
+
     data = request.json
-    curr_stat = MinesweeperStat.query.get(current_user.id)
+    curr_stat = MinesweeperStat.query.get(g.user.id)
 
     if not curr_stat:
-        print('yes')
-        curr_stat = MinesweeperStat(user_id = current_user.id)
+        curr_stat = MinesweeperStat(user_id = g.user.id)
 
         db.session.add(curr_stat)
         db.session.commit()
@@ -356,8 +397,8 @@ def submit_minesweeper_stats():
     db.session.add(curr_stat)
     db.session.commit()
 
-    new_achievements = calc_minesweeper_achievements(current_user, data)
-    current_user.minesweeper_achievements.extend(new_achievements)
+    new_achievements = calc_minesweeper_achievements(g.user, data)
+    g.user.minesweeper_achievements.extend(new_achievements)
 
     db.session.commit()
 

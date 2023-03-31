@@ -10,11 +10,11 @@ from models import (
     DEFAULT_USER_IMAGE_URL
 )
 
-from flask import session
+from flask import session, g
 
-from flask_login import (
-    LoginManager, login_user, logout_user, current_user, login_required
-)
+# from flask_login import (
+#     LoginManager, login_user, logout_user, current_user, login_required
+# )
 
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
 
@@ -95,8 +95,8 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("id='game-thumbnail-list'", html)
-            self.assertTrue(current_user.is_authenticated)
-            self.assertEqual(current_user.id, self.u1_id)
+            self.assertIsNotNone(g.user)
+            self.assertEqual(g.user.id, self.u1_id)
 
 
     def test_invalid_pwd_login_submission(self):
@@ -115,7 +115,7 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
             self.assertIn('WELCOME BACK', html)
             self.assertIn('id="user-form"', html)
             self.assertIn('Invalid credentials.', html)
-            self.assertFalse(current_user.is_authenticated)
+            self.assertIsNone(g.user)
 
 
     def test_invalid_user_login_submission(self):
@@ -134,7 +134,7 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
             self.assertIn('WELCOME BACK', html)
             self.assertIn('id="user-form"', html)
             self.assertIn('Invalid credentials.', html)
-            self.assertFalse(current_user.is_authenticated)
+            self.assertIsNone(g.user)
 
 
 class UserSignupTestCase(UserBaseViewTestCase):
@@ -168,7 +168,7 @@ class UserSignupTestCase(UserBaseViewTestCase):
             u2 = User.query.filter_by(username = "user2").one()
 
             self.assertEqual(resp.status_code, 200)
-            self.assertTrue(current_user.is_authenticated)
+            self.assertIsNotNone(g.user)
             self.assertIn('game-thumbnail-list', html)
 
 
@@ -365,7 +365,7 @@ class UserLogoutViewTestCase(UserBaseViewTestCase):
             self.assertIn('Logged out successfully.', html)
             self.assertIn('WELCOME BACK', html)
             self.assertIn('user-form', html)
-            self.assertFalse(current_user.is_authenticated)
+            self.assertIsNone(g.user)
 
     # TODO: Test login_required with flask-login
 
