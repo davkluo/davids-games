@@ -3,7 +3,7 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 
 ## Table of Contents
 
-- [To-Do](#to-do)
+- [Motivation](#motivation)
 - [Tech Stack](#tech-stack)
 - [Screenshots](#screenshots)
 - [Setup](#setup)
@@ -11,17 +11,28 @@ Game vault site with leaderboards, personal achievements, and gameplay stats
 - [Testing](#testing)
 - [Project Structure](#project-structure)
 - [API](#api)
+- [Future Improvements](#future-improvements)
 
-## To-Do
+## Motivation
 
-- Add more tests
-- Add more games
-- Add more achievements to existing games
+- To create a centralized location to play all of the games I have made
+- Track high scores and compete with other players
+- Accumulate achievements and other game statistics
+- Create games with features that I can not find elsewhere
 
 ## Tech Stack
+
 Built with Flask, Jinja, and PostgreSQL
 
 ## Screenshots
+
+<img width="1432" alt="Screen Shot 2023-03-20 at 10 49 11 AM" src="https://user-images.githubusercontent.com/108588437/226425675-45e55f7b-42a8-4bad-93cc-bddf5c62b7da.png">
+
+<img width="1430" alt="Screen Shot 2023-03-20 at 10 49 32 AM" src="https://user-images.githubusercontent.com/108588437/226425773-134a6e8c-3431-45e7-9549-6675db037ddc.png">
+
+<img width="1428" alt="Screen Shot 2023-03-20 at 10 49 59 AM" src="https://user-images.githubusercontent.com/108588437/226425933-efc3c931-e6ff-4cf9-83f0-e1d84ef9b64e.png">
+
+<img width="1429" alt="Screen Shot 2023-03-20 at 10 51 25 AM" src="https://user-images.githubusercontent.com/108588437/226426060-42451d11-be40-4585-bff4-a72241c9f6b0.png">
 
 ## Setup
 
@@ -150,3 +161,9 @@ List of available routes:
 `GET /api/minesweeper/scores` - gets JSON data of top 20 scores for each difficulty (login required)\
 `POST /api/minesweeper/scores` - submits minesweeper score to database
 `POST /api/minesweeper/stats` - submits minesweeper stats to database
+
+## Future Improvements
+
+- Add more tests
+- Add more games
+- Add more achievements to existing games
