@@ -153,6 +153,14 @@ transition: box-shadow .25s;
     text-decoration: underline;
 }
 
+#guest-login-btn {
+    background-color: rgb(205, 255, 210);
+    color: rgb(5, 1, 10);
+    border-radius: .25rem;
+    border: none;
+    width: fit-content;
+}
+
 .navbar-brand:hover {
     color: white;
 }
