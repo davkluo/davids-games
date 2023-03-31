@@ -98,6 +98,11 @@
         {% else %}
         <li><a class='navbar-guest-link' href="/signup">SIGN UP</a></li>
         <li class='mx-2'><a class='navbar-guest-link' href="/login">LOG IN</a></li>
+        <li class='mx-2'>
+          <form>
+            <button class='navbar-guest-link' formmethod='POST' formaction='/guestlogin' id='guest-login-btn'>GUEST LOGIN</button>
+          </form>
+        </li>
         {% endif %}
       </ul>
     </div>

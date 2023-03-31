@@ -204,6 +204,24 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.post('/guestlogin')
+def login_guest():
+    """ Log user in to guest account """
+
+    user = (User.query
+        .filter(User.username == 'guest')
+        .first())
+
+    if user:
+        login_user(user)
+        flash('Logged in as guest.', 'success')
+
+        return redirect(url_for('homepage'))
+
+    flash('Something went wrong. Please sign up to proceed.', 'danger')
+    return redirect(url_for('signup'))
+
+
 ###### General user routes ######
 
 @app.get('/users')
