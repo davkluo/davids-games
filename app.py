@@ -46,7 +46,7 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 # db.session.rollback()
-# db.create_all()
+db.create_all()
 
 
 ###### Flask-login redirect target check ######
