@@ -141,25 +141,25 @@ List of available routes:
 `POST /signup` - submits user signup form\
 `GET /login` - renders user login form\
 `POST /login` - submits user login form\
-`POST /logout` - user logout request (login required)\
+`POST /logout` - user logout request (login required)
 
 **General routes**:\
-`GET /` - redirects to games listing page\
+`GET /` - redirects to games listing page
 
 **User routes**:\
 `GET /users` - renders user index with optional username filter (login required)\
 `GET /users/:user_id` - renders user profile page (login required)\
 `GET /users/:user_id/edit` - renders edit profile form (login required)\
 `POST /users/:user_id/edit` - submits edit profile form (login required)\
-`POST /users/:user_id/delete - deletes user account (login required)\
+`POST /users/:user_id/delete - deletes user account (login required)
 
 **Game routes**:\
 `GET /games` - renders games listing page\
-`GET /games/minesweeper` - renders minesweeper game (login required)\
+`GET /games/minesweeper` - renders minesweeper game (login required)
 
 **Minesweeper API routes**:\
 `GET /api/minesweeper/scores` - gets JSON data of top 20 scores for each difficulty (login required)\
-`POST /api/minesweeper/scores` - submits minesweeper score to database
+`POST /api/minesweeper/scores` - submits minesweeper score to database\
 `POST /api/minesweeper/stats` - submits minesweeper stats to database
 
 ## Future Improvements
