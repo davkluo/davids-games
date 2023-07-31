@@ -14,7 +14,8 @@
             <i class="fa-solid fa-pen"></i>
           </a>
           <form>
-            {{ g.csrf_form.hidden_tag() }}
+            <!-- {{ g.csrf_form.hidden_tag() }} -->
+            {{ g.csrf_form.csrf_token }}
             <button formmethod='POST' formaction='/users/{{ user.id }}/delete' id='user-delete-btn'>
               <i class="fa-solid fa-trash"></i>
             </button>

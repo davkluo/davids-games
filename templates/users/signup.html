@@ -7,7 +7,8 @@
       <h2 class="join-message mt-5">CREATE AN ACCOUNT</h2>
 
       <form class='mt-4' method="POST" id="user-form">
-        {{ form.hidden_tag() }}
+        <!-- {{ form.hidden_tag() }} -->
+        {{ form.csrf_token }}
 
         {% for field in form if field.widget.input_type != 'hidden' %}
         <div class='form-floating'>

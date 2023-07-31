@@ -17,8 +17,6 @@ from urllib.parse import (
 from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
 
-from flask_wtf.csrf import CSRFProtect
-
 from models import (
     db, connect_db, User, Role, MinesweeperScore, MinesweeperStat,
     MinesweeperAchievement, UserMinesweeperAchievement
@@ -49,8 +47,6 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 # db.session.rollback()
 db.create_all()
-
-csrf = CSRFProtect(app)
 
 
 ###### Flask-login redirect target check ######

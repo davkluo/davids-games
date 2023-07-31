@@ -89,7 +89,8 @@
             <li><hr class="dropdown-divider"></li>
             <li>
               <form action='/logout' method='POST'>
-                {{ g.csrf_form.hidden_tag() }}
+                <!-- {{ g.csrf_form.hidden_tag() }} -->
+                {{ g.csrf_form.csrf_token}}
                 <button class="dropdown-item">LOGOUT</button>
               </form>
             </li>
