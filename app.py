@@ -157,6 +157,8 @@ def signup():
                 flash('Display name already taken.', 'danger')
             if not is_unique_email:
                 flash('E-mail already taken.', 'danger')
+    else:
+        print(form.errors)
 
     return render_template('users/signup.html', form=form)
 
@@ -184,6 +186,8 @@ def login():
             return redirect(next or url_for('homepage'))
 
         flash('Invalid credentials.', 'danger')
+    else:
+        print(form.errors)
 
     return render_template('users/login.html', form=form)
 
@@ -195,6 +199,7 @@ def logout():
     form = g.csrf_form
 
     if not form.validate_on_submit() or not g.user:
+        print(form.errors)
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('homepage'))
 
