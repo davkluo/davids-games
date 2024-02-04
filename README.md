@@ -1,4 +1,5 @@
 # David's Games
+
 Game vault site with leaderboards, personal achievements, and gameplay stats
 
 ## Table of Contents
@@ -75,10 +76,10 @@ psql
 CREATE DATABASE davids_games;
 ```
 
-### Seed achievements into database
+### Seed database
 
 ```bash
-psql -f minesweeper_achievements.sql
+psql -f seed.sql
 ```
 
 ## Running the App
@@ -100,7 +101,7 @@ CREATE DATABASE davids_games_test;
 
 ### Running all tests (from root directory)
 
-```python3 -m unittest```
+`python3 -m unittest`
 
 ## Project Structure
 
@@ -116,14 +117,14 @@ CREATE DATABASE davids_games_test;
  |--test_game_views.py            # game views tests
  |--test_minesweeper_api.py       # minesweeper api tests
  |--test_minesweeper_models.py    # minesweeper model tests
- |--test_user_model.py            # user model tests 
+ |--test_user_model.py            # user model tests
  |--test_user_views.py            # user views tests
 
  \static                          # static files folder
  |--/images                       # images folder
  |--/stylesheets                  # stylesheets folder
  |--/js                           # javascript files folder
- 
+
  \templates                       # jinja templates folder
  |--/users                        # user route templates
  |--404_not_found.html            # 404 page template

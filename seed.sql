@@ -1,5 +1,11 @@
 \connect davids_games
 
+INSERT INTO roles (name)
+  VALUES
+    ('admin'),
+    ('user')
+ON CONFLICT (name) DO NOTHING;
+
 INSERT INTO minesweeper_achievements (title, description, color)
   VALUES
     ('First Steps', 'Win 1 time on beginner difficulty.', 'rgb(169, 169, 169)'),
@@ -25,3 +31,4 @@ INSERT INTO minesweeper_achievements (title, description, color)
     ('Addicted', 'Accumulate over an hour of total playtime.', 'rgb(0, 0, 255)'),
     ('On A Roll', 'Win 5 times in a row.', 'rgb(255, 160, 122)'),
     ('Unstoppable', 'Win 10 times in a row.', 'rgb(152, 251, 152)')
+ON CONFLICT (title) DO NOTHING;
