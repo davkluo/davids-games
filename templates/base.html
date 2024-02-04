@@ -101,6 +101,7 @@
         <li class='mx-2'><a class='navbar-guest-link' href="/login">LOG IN</a></li>
         <li class='mx-2'>
           <form>
+            {{ g.csrf_form.csrf_token}}
             <button class='navbar-guest-link' formmethod='POST' formaction='/guestlogin' id='guest-login-btn'>GUEST LOGIN</button>
           </form>
         </li>

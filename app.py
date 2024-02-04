@@ -45,7 +45,6 @@ app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-# db.session.rollback()
 db.create_all()
 
 
@@ -125,20 +124,15 @@ def signup():
 
         try:
             user = User.signup(
-                username = username,
-                password = form.password.data,
-                display_name = display_name,
-                email = email
+                username=username,
+                password=form.password.data,
+                display_name=display_name,
+                email=email
             )
 
             db.session.commit()
 
-            login_user(user)
-
-            flash('Successfully signed up.', 'success')
-            return redirect(url_for('homepage'))
-
-        except IntegrityError:
+        except IntegrityError as e:
             db.session.rollback()
 
             is_unique_username = (User.query
@@ -157,10 +151,16 @@ def signup():
                 flash('Display name already taken.', 'danger')
             if not is_unique_email:
                 flash('E-mail already taken.', 'danger')
-    else:
-        print(form.errors)
 
-    return render_template('users/signup.html', form=form)
+            return render_template('users/signup.html', form=form)
+
+        login_user(user)
+
+        flash('Successfully signed up.', 'success')
+        return redirect(url_for('homepage'))
+
+    else:
+        return render_template('users/signup.html', form=form)
 
 
 @app.route('/login', methods = ['GET', 'POST'])
@@ -171,8 +171,8 @@ def login():
 
     if form.validate_on_submit():
         user = User.authenticate(
-            username = form.username.data,
-            password = form.password.data
+            username=form.username.data,
+            password=form.password.data
         )
 
         if user:
@@ -186,8 +186,6 @@ def login():
             return redirect(next or url_for('homepage'))
 
         flash('Invalid credentials.', 'danger')
-    else:
-        print(form.errors)
 
     return render_template('users/login.html', form=form)
 
@@ -198,12 +196,8 @@ def logout():
 
     form = g.csrf_form
 
-    if not form.validate_on_submit() or not g.user:
-        print(form.errors)
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('homepage'))
-
-    logout_user()
+    if form.validate_on_submit():
+        logout_user()
 
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
@@ -213,15 +207,17 @@ def logout():
 def login_guest():
     """ Log user in to guest account """
 
-    user = (User.query
-        .filter(User.username == 'guest')
-        .first())
+    form = g.csrf_form
 
-    if user:
-        login_user(user)
-        flash('Logged in as guest.', 'success')
+    if form.validate_on_submit():
+        user = (User.query
+            .filter(User.username == 'guest')
+            .first())
 
-        return redirect(url_for('homepage'))
+        if user:
+            login_user(user)
+            flash('Logged in as guest.', 'success')
+            return redirect(url_for('homepage'))
 
     flash('Something went wrong. Please sign up to proceed.', 'danger')
     return redirect(url_for('signup'))
