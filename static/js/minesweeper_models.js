@@ -4,7 +4,8 @@ const GAME_TIMER_UPDATE_INTERVAL_MS = 50;
 const MS_PER_SEC = 1000;
 const MAX_GAME_TIME_S = 59 * 60 + 59;
 
-const DAVIDS_GAMES_BASE_API_URL = 'https://davids-games.onrender.com'
+// const DAVIDS_GAMES_BASE_API_URL = 'http://localhost:5000' // local testing
+const DAVIDS_GAMES_BASE_API_URL = 'https://davids-games.fly.dev' // deployment
 
 /**
  * Game class for Minesweeper
