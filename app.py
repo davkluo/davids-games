@@ -354,6 +354,7 @@ def get_minesweeper_scores():
 
 
 @app.post('/api/minesweeper/scores')
+@csrf.exempt
 def submit_minesweeper_score():
     """ Submit minesweeper score to database.
     Expects JSON format data with fields for time and level.
@@ -377,6 +378,7 @@ def submit_minesweeper_score():
 
 
 @app.post('/api/minesweeper/stats')
+@csrf.exempt
 def submit_minesweeper_stats():
     """ Submit minesweeper stats to database.
     Calculates achievements and sends back in JSON response.
