@@ -29,15 +29,9 @@ app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 csrf = CSRFProtect(app)
 toolbar = DebugToolbarExtension(app)
 
-def init_db():
-    """ Initialize database """
-
-    connect_db(app)
-    with app.app_context():
-        db.create_all()
-
-if __name__ == '__main__':
-    init_db()
+connect_db(app)
+with app.app_context():
+    db.create_all()
 
 ###### Flask-login redirect target check ######
 # Credit to:
