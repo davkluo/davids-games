@@ -56,7 +56,7 @@
       </a>
 
       <ul class="nav navbar-nav navbar-right d-flex align-items-center me-2">
-        {% if g.user %}
+        {% if curr_user %}
         <li class="nav-item h-100 dropdown">
           <a class="nav-link" href="#" id="navbar-search-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <div id='navbar-search-icon'>
@@ -81,16 +81,15 @@
 
         <li class="nav-item h-100 dropdown">
           <a class="nav-link" href="#" id="navbar-user-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src='{{ g.user.image_url }}' alt='' id='navbar-avatar'>
+            <img src='{{ curr_user.image_url }}' alt='' id='navbar-avatar'>
           </a>
           <ul id='navbar-user-menu' class="dropdown-menu dropdown-menu-end" aria-labelledby="navbar-user-dropdown">
-            <li><a class="dropdown-item" href="/users/{{ g.user.id }}">PROFILE</a></li>
+            <li><a class="dropdown-item" href="/users/{{ curr_user.id }}">PROFILE</a></li>
             <!-- <li><a class="dropdown-item" href="#">PREFERENCES</a></li> -->
             <li><hr class="dropdown-divider"></li>
             <li>
               <form action='/logout' method='POST'>
-                <!-- {{ g.csrf_form.hidden_tag() }} -->
-                {{ g.csrf_form.csrf_token}}
+                <input type='hidden' name='csrf_token' value='{{ csrf_token() }}'>
                 <button class="dropdown-item">LOGOUT</button>
               </form>
             </li>
@@ -101,7 +100,7 @@
         <li class='mx-2'><a class='navbar-guest-link' href="/login">LOG IN</a></li>
         <li class='mx-2'>
           <form>
-            {{ g.csrf_form.csrf_token}}
+            <input type='hidden' name='csrf_token' value='{{ csrf_token() }}'>
             <button class='navbar-guest-link' formmethod='POST' formaction='/guestlogin' id='guest-login-btn'>GUEST LOGIN</button>
           </form>
         </li>

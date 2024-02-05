@@ -3,8 +3,9 @@ from wtforms import StringField, PasswordField, TextAreaField, SelectField
 from wtforms.validators import InputRequired, Email, Length
 
 
-class CSRFProtection(FlaskForm):
+class CSRFProtectForm(FlaskForm):
     """ Blank form for CSRF protection only. """
+    pass
 
 
 class UserAddForm(FlaskForm):
