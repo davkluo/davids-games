@@ -1,29 +1,17 @@
 import os
 from dotenv import load_dotenv
-
 from flask import (
     Flask, render_template, flash, request, url_for, redirect, abort,
     jsonify, session
 )
-
 from flask_wtf.csrf import CSRFProtect
-
-# from flask_login import (
-#     LoginManager, login_user, logout_user, current_user, login_required
-# )
-
-from urllib.parse import (
-    urlparse, urljoin
-)
-
+from urllib.parse import (urlparse, urljoin)
 from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
-
 from models import (
     db, connect_db, User, MinesweeperScore, MinesweeperStat,
     MinesweeperAchievement, UserMinesweeperAchievement)
-from forms import (
-    LoginForm, UserAddForm, CSRFProtectForm, UserEditForm)
+from forms import (LoginForm, UserAddForm, CSRFProtectForm, UserEditForm)
 from minesweeper import MINESWEEPER_LEVELS, calc_minesweeper_achievements
 
 load_dotenv()
@@ -41,9 +29,15 @@ app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 csrf = CSRFProtect(app)
 toolbar = DebugToolbarExtension(app)
 
-connect_db(app)
-db.create_all()
+def init_db():
+    """ Initialize database """
 
+    connect_db(app)
+    with app.app_context():
+        db.create_all()
+
+if __name__ == '__main__':
+    init_db()
 
 ###### Flask-login redirect target check ######
 # Credit to:

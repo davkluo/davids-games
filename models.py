@@ -19,9 +19,9 @@ SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR
 def connect_db(app):
     """ Connect this database to provided Flask app """
 
-    app.app_context().push()
-    db.app = app
-    db.init_app(app)
+    with app.app_context():
+        db.app = app
+        db.init_app(app)
 
 
 class User(db.Model):
