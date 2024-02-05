@@ -19,7 +19,7 @@ from flask import session, g
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
 
 from app import (
-    app
+    app, CURR_USER_KEY
 )
 
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -95,8 +95,11 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("id='game-thumbnail-list'", html)
-            self.assertIsNotNone(g.user)
-            self.assertEqual(g.user.id, self.u1_id)
+            with c.session_transaction() as sess:
+                self.assertIsNotNone(sess.get(CURR_USER_KEY),
+                                     "User ID should be set in the session.")
+                self.assertEqual(sess[CURR_USER_KEY], self.u1_id,
+                                 "The session user ID should match the logged-in user's ID.")
 
 
     def test_invalid_pwd_login_submission(self):
@@ -115,7 +118,9 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
             self.assertIn('WELCOME BACK', html)
             self.assertIn('id="user-form"', html)
             self.assertIn('Invalid credentials.', html)
-            self.assertIsNone(g.user)
+            with c.session_transaction() as sess:
+                self.assertIsNone(sess.get(CURR_USER_KEY),
+                                  "User ID should not be set in the session for invalid login.")
 
 
     def test_invalid_user_login_submission(self):
@@ -134,7 +139,9 @@ class UserLoginViewTestCase(UserBaseViewTestCase):
             self.assertIn('WELCOME BACK', html)
             self.assertIn('id="user-form"', html)
             self.assertIn('Invalid credentials.', html)
-            self.assertIsNone(g.user)
+            with c.session_transaction() as sess:
+                self.assertIsNone(sess.get(CURR_USER_KEY),
+                                  "User ID should not be set in the session for invalid login.")
 
 
 class UserSignupTestCase(UserBaseViewTestCase):
@@ -168,8 +175,10 @@ class UserSignupTestCase(UserBaseViewTestCase):
             u2 = User.query.filter_by(username = "user2").one()
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIsNotNone(g.user)
             self.assertIn('game-thumbnail-list', html)
+            with c.session_transaction() as sess:
+                self.assertIsNotNone(sess.get(CURR_USER_KEY), "User ID should be set in the session after signup.")
+                self.assertEqual(sess[CURR_USER_KEY], u2.id, "The session user ID should match the newly signed up user's ID.")
 
 
     def test_invalid_signup_submission(self):
@@ -365,7 +374,8 @@ class UserLogoutViewTestCase(UserBaseViewTestCase):
             self.assertIn('Logged out successfully.', html)
             self.assertIn('WELCOME BACK', html)
             self.assertIn('user-form', html)
-            self.assertIsNone(g.user)
+            with c.session_transaction() as sess:
+                self.assertIsNone(sess.get(CURR_USER_KEY), "User ID should be None after logout.")
 
     # TODO: Test login_required with flask-login
 
