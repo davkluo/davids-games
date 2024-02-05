@@ -8,6 +8,8 @@ from models import (db, User, Role, MinesweeperScore, connect_db,
 from app import app
 
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 app.config['WTF_CSRF_ENABLED'] = False

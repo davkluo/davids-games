@@ -8,6 +8,8 @@ from sqlalchemy.exc import IntegrityError
 from app import app
 
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
 
 connect_db(app)
 with app.app_context():

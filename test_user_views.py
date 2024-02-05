@@ -7,6 +7,8 @@ from models import (db, User, Role, connect_db, DEFAULT_USER_ROLE,
 from app import app, CURR_USER_KEY
 
 os.environ['DATABASE_URL'] = "postgresql:///davids_games_test"
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 app.config['WTF_CSRF_ENABLED'] = False
